@@ -13,14 +13,53 @@ function Action_set(_name) {
 var W = new Window ('dialog {orientation: "row", alignChildren: ["fill","fill"], preferredSize: [600,400]}',
 "Conditional action piping", undefined, {closeButton: true});
 
-var Middle_Group = W.add('panel {orientation: "column", alignChildren: ["fill","top"]}', undefined, 'asd');
-var Middle_Group_Desc = Middle_Group.add('statictext', undefined, 'Action set:');
-var Action_Set_Dropdown = Middle_Group.add('dropdownlist', undefined, '');
+var container = W.add('panel {orientation: "column", alignChildren: ["fill","top"]}', undefined, 'asd');
+
+var First = container.add('panel {orientation: "row", alignChildren: ["left","top"]}', undefined, 'asd');
+First.add('edittext', undefined, 1 ,{readonly: true});
+First.add('edittext', undefined, 'Open Files' ,{readonly: true});
+First.add('button', undefined, "Choose your files...");
+First.add('edittext', undefined, '~/Dekstop/test' ,{readonly: true});
+
+var Five = container.add('panel {orientation: "row", alignChildren: ["left","top"]}', undefined, 'asd');
+Five.add('edittext', undefined, 2 ,{readonly: true});
+Five.add('edittext', undefined, 'Condition' ,{readonly: true});
+Five.add('dropdownlist', undefined, ['If a name contains', 'If a name does not contain']);
+Five.add('edittext', undefined, '_________________');
+Five.add('dropdownlist', undefined, ['Play action underneath', 'Skip action underneath']);
+
+var Second = container.add('panel {orientation: "row", alignChildren: ["left","top"]}', undefined, 'asd');
+Second.add('edittext', undefined, 3 ,{readonly: true});
+Second.add('edittext', undefined, 'Play action' ,{readonly: true});
+var Action_Set_Dropdown = Second.add('dropdownlist', undefined, '');
+var Actions_Dropdown = Second.add('dropdownlist', undefined, '');
+
+var a = container.add('panel {orientation: "row", alignChildren: ["left","top"]}', undefined, 'asd');
+a.add('edittext', undefined, 4 ,{readonly: true});
+a.add('edittext', undefined, 'Condition' ,{readonly: true});
+a.add('dropdownlist', undefined, ['If a name contains', 'If a name does not contain']);
+a.add('edittext', undefined, '_________________');
+a.add('dropdownlist', undefined, ['Play action underneath', 'Skip action underneath']);
+
+var bb = container.add('panel {orientation: "row", alignChildren: ["left","top"]}', undefined, 'asd');
+bb.add('edittext', undefined, 5 ,{readonly: true});
+bb.add('edittext', undefined, 'Play action' ,{readonly: true});
+bb.add('dropdownlist', undefined, ['Action set nr 00000001']);
+bb.add('dropdownlist', undefined, ['Action 2 00000000000300000000000000000000000000']);
+
+var Third = container.add('panel {orientation: "row", alignChildren: ["left","top"]}', undefined, 'asd');
+Third.add('edittext', undefined, 6 ,{readonly: true});
+Third.add('edittext', undefined, 'Save Files' ,{readonly: true});
+Third.add('button', undefined, "Choose your folder...");
+Third.add('statictext', undefined, "Suffix:");
+Third.add('edittext', undefined, "______________");
+Third.add('edittext', undefined, '~/Dekstop/output' ,{readonly: true});
 
 
-var Right_Group = W.add('panel {orientation: "column", alignChildren: ["fill","top"]}', undefined, 'asd' );
-var Right_Group_Desc = Right_Group.add('statictext', undefined, 'Actions:');
-var Actions_Dropdown = Right_Group.add('dropdownlist', undefined, '');
+var Controls = W.add('panel {orientation: "column"}', undefined, '');
+var typeOfAction = Controls.add('treeview', undefined, ['Play action', 'Open files', 'Save Files', 'Add Condition']);
+var addButton = Controls.add('button',undefined ,'+' );
+var subButton = Controls.add('button',undefined ,'-' );
 
 var sbar = W.add ("scrollbar", [0,0,20,600]);
 
@@ -39,10 +78,10 @@ Action_Set_Dropdown.onChange = function () {
 try { Action_Set_Dropdown.selection = 0; } catch (e) {  alert (e); }
 try { Actions_Dropdown.selection = 0; } catch (e) {  alert (e); }
 
-var b = write
 
 W.show();
 
+// var b = write
 
     function populate() {
 
