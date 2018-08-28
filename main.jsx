@@ -4,11 +4,14 @@ var actions_set_array, aList;
 
 var all_action_sets = [];
 
+var all_references = [];
+
 // constructor for actions
 function Action_set(_name) {
   this.name = _name;
   this.actions_Arr = [];
 }  ;
+populate();
 
 var W = new Window ('dialog {orientation: "row", alignChildren: ["fill","fill"], preferredSize: [600,400]}',
 "Conditional action piping", undefined, {closeButton: true});
@@ -28,11 +31,6 @@ Five.add('dropdownlist', undefined, ['If a name contains', 'If a name does not c
 Five.add('edittext', undefined, '_________________');
 Five.add('dropdownlist', undefined, ['Play action underneath', 'Skip action underneath']);
 
-var Second = container.add('panel {orientation: "row", alignChildren: ["left","top"]}', undefined, 'asd');
-Second.add('edittext', undefined, 3 ,{readonly: true});
-Second.add('edittext', undefined, 'Play action' ,{readonly: true});
-var Action_Set_Dropdown = Second.add('dropdownlist', undefined, '');
-var Actions_Dropdown = Second.add('dropdownlist', undefined, '');
 
 var a = container.add('panel {orientation: "row", alignChildren: ["left","top"]}', undefined, 'asd');
 a.add('edittext', undefined, 4 ,{readonly: true});
@@ -63,8 +61,6 @@ var subButton = Controls.add('button',undefined ,'-' );
 
 var sbar = W.add ("scrollbar", [0,0,20,600]);
 
-populate();
-
 Action_Set_Dropdown.onChange = function () {
   Actions_Dropdown.removeAll();
   var action_arr = all_action_sets[parseInt(Action_Set_Dropdown.selection.index)].actions_Arr;
@@ -83,29 +79,53 @@ W.show();
 
 // var b = write
 
-    function populate() {
+var all_of_types_Arr = ['Action' , 'Opening' , 'Saving'];
 
-      actions_set_array = getActionSets();
+  /////////////////////// MAIN OBJECT constructor *********************** START
+      function Module(
+        TYPE,
+        REFERENCE
+      )  {
 
-        for ( var i = 0; i < actions_set_array.length; i++ ) {
+        this.type = TYPE;
+        if (this.type === all_of_types_Arr[0]) { //is action type
+          this.reference = container.add('panel {orientation: "row", alignChildren: ["left","top"]}', undefined, '');
+          this.reference.add('edittext', undefined, 3 ,{readonly: true});
+          this.reference.add('edittext', undefined, 'Play action' ,{readonly: true});
+          all_references.push(this.reference.add('dropdownlist', undefined, ''));
+          all_references.push(this.reference.add('dropdownlist', undefined, ''));
 
-          all_action_sets[i] = new Action_set (actions_set_array[i].toString());
-
-          aList = getActions(actions_set_array[i]);
-          for (var j = 0; j < aList.length; j++) {
-            all_action_sets[i].actions_Arr.push( aList[j].toString() );
-          }
+          fill_dropdowns ( all_references [ (all_references.length-2) ], all_references [ (all_references.length-1) ] );
         }
 
-        for (var i = 0; i < all_action_sets.length; i++) {
-          Action_Set_Dropdown.add('item', all_action_sets[i].name);
-        }
+      }
 
-        for (var i = 0; i < all_action_sets[0].actions_Arr.length; i++) {
-          Actions_Dropdown.add('item',   all_action_sets[0].actions_Arr[i].toString() );
-        }
+   /////////////////////// MAIN OBJECT constructor *********************** END
 
+
+    function Type_Action ( REFERENCE_SETS, REFERENCE_ACTIONS) {
+      // handle (  REFERENCE   ) ;;;
+      REFERENCE_SETS.onChange = function () {
+        alert( 'Reference function action asigned' );
+        REFERENCE_ACTIONS.removeAll();
+        var action_arr = all_action_sets[parseInt(REFERENCE_SETS.selection.index)].actions_Arr;
+        for (var i = 0; i < action_arr.length; i++) {
+          REFERENCE_ACTIONS.add('item', action_arr[i] );
+        }
+        try { REFERENCE_ACTIONS.selection = 0; } catch (e) {  alert (e); }
+      }
     }
+
+    function fill_dropdowns (REFERENCE_SETS, REFERENCE_ACTIONS){
+      for (var i = 0; i < all_action_sets.length; i++) {
+        REFERENCE_SETS.add('item', all_action_sets[i].name);
+      }
+
+      for (var i = 0; i < all_action_sets[0].actions_Arr.length; i++) {
+        REFERENCE_ACTIONS.add('item',   all_action_sets[0].actions_Arr[i].toString() );
+      }
+    }
+
 
     function saveTxt(txt)
     {
@@ -126,11 +146,25 @@ W.show();
     saveFile.close();
     }
 
+    function populate() {
+
+      actions_set_array = getActionSets();
+
+        for ( var i = 0; i < actions_set_array.length; i++ ) {
+
+          all_action_sets[i] = new Action_set (actions_set_array[i].toString());
+
+          aList = getActions(actions_set_array[i]);
+          for (var j = 0; j < aList.length; j++) {
+            all_action_sets[i].actions_Arr.push( aList[j].toString() );
+          }
+        }
+    }
+
     function getActionSets() {
     cTID = function(s) { return app.charIDToTypeID(s); };
     sTID = function(s) { return app.stringIDToTypeID(s); };
-      var i = 1;
-      var sets = [];
+      var i = 1;   var sets = [];
       while (true) {
         var ref = new ActionReference();
         ref.putIndex(cTID("ASet"), i);
@@ -169,8 +203,7 @@ W.show();
     function getActions(aset) {
     cTID = function(s) { return app.charIDToTypeID(s); };
     sTID = function(s) { return app.stringIDToTypeID(s); };
-      var i = 1;
-      var names = [];
+      var i = 1;   var names = [];
       if (!aset) {
         throw "Action set must be specified";
       }
@@ -186,12 +219,10 @@ W.show();
         if (desc.hasKey(cTID("Nm  "))) {
           var name = desc.getString(cTID("Nm  "));
           if (name == aset) {
-            var count = desc.getInteger(cTID("NmbC"));
-            var names = [];
+            var count = desc.getInteger(cTID("NmbC"));  var names = [];
             for (var j = 1; j <= count; j++) {
               var ref = new ActionReference();
-              ref.putIndex(cTID('Actn'), j);
-              ref.putIndex(cTID('ASet'), i);
+              ref.putIndex(cTID('Actn'), j);   ref.putIndex(cTID('ASet'), i);
               var adesc = executeActionGet(ref);
               var actName = adesc.getString(cTID('Nm  '));
               names.push(actName);
