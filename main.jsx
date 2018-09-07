@@ -6,11 +6,6 @@ var all_action_sets = [];
 
 var all_references = [];
 
-// constructor for actions
-function Action_set(_name) {
-  this.name = _name;
-  this.actions_Arr = [];
-}  ;
 populate();
 
 var W = new Window ('dialog {orientation: "row", alignChildren: ["fill","fill"], preferredSize: [600,400]}',
@@ -18,40 +13,7 @@ var W = new Window ('dialog {orientation: "row", alignChildren: ["fill","fill"],
 
 var container = W.add('panel {orientation: "column", alignChildren: ["fill","top"]}', undefined, 'asd');
 
-var First = container.add('panel {orientation: "row", alignChildren: ["left","top"]}', undefined, 'asd');
-First.add('edittext', undefined, 1 ,{readonly: true});
-First.add('edittext', undefined, 'Open Files' ,{readonly: true});
-First.add('button', undefined, "Choose your files...");
-First.add('edittext', undefined, '~/Dekstop/test' ,{readonly: true});
 
-var Five = container.add('panel {orientation: "row", alignChildren: ["left","top"]}', undefined, 'asd');
-Five.add('edittext', undefined, 2 ,{readonly: true});
-Five.add('edittext', undefined, 'Condition' ,{readonly: true});
-Five.add('dropdownlist', undefined, ['If a name contains', 'If a name does not contain']);
-Five.add('edittext', undefined, '_________________');
-Five.add('dropdownlist', undefined, ['Play action underneath', 'Skip action underneath']);
-
-
-var a = container.add('panel {orientation: "row", alignChildren: ["left","top"]}', undefined, 'asd');
-a.add('edittext', undefined, 4 ,{readonly: true});
-a.add('edittext', undefined, 'Condition' ,{readonly: true});
-a.add('dropdownlist', undefined, ['If a name contains', 'If a name does not contain']);
-a.add('edittext', undefined, '_________________');
-a.add('dropdownlist', undefined, ['Play action underneath', 'Skip action underneath']);
-
-var bb = container.add('panel {orientation: "row", alignChildren: ["left","top"]}', undefined, 'asd');
-bb.add('edittext', undefined, 5 ,{readonly: true});
-bb.add('edittext', undefined, 'Play action' ,{readonly: true});
-bb.add('dropdownlist', undefined, ['Action set nr 00000001']);
-bb.add('dropdownlist', undefined, ['Action 2 00000000000300000000000000000000000000']);
-
-var Third = container.add('panel {orientation: "row", alignChildren: ["left","top"]}', undefined, 'asd');
-Third.add('edittext', undefined, 6 ,{readonly: true});
-Third.add('edittext', undefined, 'Save Files' ,{readonly: true});
-Third.add('button', undefined, "Choose your folder...");
-Third.add('statictext', undefined, "Suffix:");
-Third.add('edittext', undefined, "______________");
-Third.add('edittext', undefined, '~/Dekstop/output' ,{readonly: true});
 
 
 var Controls = W.add('panel {orientation: "column"}', undefined, '');
@@ -61,27 +23,14 @@ var subButton = Controls.add('button',undefined ,'-' );
 
 var sbar = W.add ("scrollbar", [0,0,20,600]);
 
-Action_Set_Dropdown.onChange = function () {
-  Actions_Dropdown.removeAll();
-  var action_arr = all_action_sets[parseInt(Action_Set_Dropdown.selection.index)].actions_Arr;
-  for (var i = 0; i < action_arr.length; i++) {
-    Actions_Dropdown.add('item', action_arr[i] );
-  }
-  try { Actions_Dropdown.selection = 0; } catch (e) {  alert (e); }
-}
-
 ////////////// set initial index of dropdowns:
-try { Action_Set_Dropdown.selection = 0; } catch (e) {  alert (e); }
-try { Actions_Dropdown.selection = 0; } catch (e) {  alert (e); }
-
-
-W.show();
-
-// var b = write
 
 var all_of_types_Arr = ['Action' , 'Opening' , 'Saving'];
 
   /////////////////////// MAIN OBJECT constructor *********************** START
+
+      // envoked with: new Module ( 'Action', container.add( 'dropdownlist', undefined, [] ) )
+
       function Module(
         TYPE,
         REFERENCE
@@ -102,6 +51,9 @@ var all_of_types_Arr = ['Action' , 'Opening' , 'Saving'];
 
    /////////////////////// MAIN OBJECT constructor *********************** END
 
+   /////////////////////// TYPES of constructors *********************** START
+
+   // ACTION TYPE:
 
     function Type_Action ( REFERENCE_SETS, REFERENCE_ACTIONS) {
       // handle (  REFERENCE   ) ;;;
@@ -116,16 +68,20 @@ var all_of_types_Arr = ['Action' , 'Opening' , 'Saving'];
       }
     }
 
-    function fill_dropdowns (REFERENCE_SETS, REFERENCE_ACTIONS){
-      for (var i = 0; i < all_action_sets.length; i++) {
-        REFERENCE_SETS.add('item', all_action_sets[i].name);
+    // fill dropdowns of Action module:
+      function fill_dropdowns (REFERENCE_SETS, REFERENCE_ACTIONS){
+        for (var i = 0; i < all_action_sets.length; i++) {
+          REFERENCE_SETS.add('item', all_action_sets[i].name);
+        }
+
+        for (var i = 0; i < all_action_sets[0].actions_Arr.length; i++) {
+          REFERENCE_ACTIONS.add('item',   all_action_sets[0].actions_Arr[i].toString() );
+        }
       }
 
-      for (var i = 0; i < all_action_sets[0].actions_Arr.length; i++) {
-        REFERENCE_ACTIONS.add('item',   all_action_sets[0].actions_Arr[i].toString() );
-      }
-    }
+    // ACTION TYPE END
 
+    /////////////////////// TYPES of constructors *********************** START
 
     function saveTxt(txt)
     {
@@ -234,3 +190,6 @@ var all_of_types_Arr = ['Action' , 'Opening' , 'Saving'];
       }
       return names;
     };
+
+    // SHOW THE WINDOW
+    W.show();
