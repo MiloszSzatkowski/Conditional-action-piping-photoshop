@@ -1,4 +1,8 @@
+////////////////////////////////// ONLY OPERATE IN PHOTOSHOP ***********************
+
 #target photoshop
+
+////////////////////////////////// GLOABAL VARIABLES START ***********************
 
 var actions_set_array, aList;
 
@@ -6,7 +10,16 @@ var all_action_sets = [];
 
 var all_references = [];
 
+var id = 0;
+
+////////////////////////////////// GLOABAL VARIABLES END ***********************
+
+
+// SCAN ALL AVAILABLE ACTIONS AND ADD THEM TO ARRAY
 populate();
+// -------------
+
+/////////////////////////////////// UI START ***********************
 
 var W = new Window ('dialog {orientation: "row", alignChildren: ["fill","fill"], preferredSize: [600,400]}',
 "Conditional action piping", undefined, {closeButton: true});
@@ -20,36 +33,71 @@ var Controls = W.add('panel {orientation: "column"}', undefined, '');
 var typeOfAction = Controls.add('treeview', undefined, ['Play action', 'Open files', 'Save Files', 'Add Condition']);
 var addButton = Controls.add('button',undefined ,'+' );
 var subButton = Controls.add('button',undefined ,'-' );
+try {
+  var children_count = (container.children.length) ? container.children.length : 0;
+} catch (variable) {
+
+}
 
 var sbar = W.add ("scrollbar", [0,0,20,600]);
+
+////////////// INTERACTIONS - CONTROL PANEL:
+
+addButton.onClick = function () {
+  all_references.push ( new Module ('Action') );
+}
+
 
 ////////////// set initial index of dropdowns:
 
 var all_of_types_Arr = ['Action' , 'Opening' , 'Saving'];
 
+var T_Action_Set, T_Action_List;
+
   /////////////////////// MAIN OBJECT constructor *********************** START
 
-      // envoked with: new Module ( 'Action', container.add( 'dropdownlist', undefined, [] ) )
+      // envoked with: new Module ( 'Action' ) || new Module ( 'Opening' ) || new Module ( 'Saving' )
 
       function Module(
-        TYPE,
-        REFERENCE
+        TYPE
       )  {
 
         this.type = TYPE;
-        if (this.type === all_of_types_Arr[0]) { //is action type
-          this.reference = container.add('panel {orientation: "row", alignChildren: ["left","top"]}', undefined, '');
-          this.reference.add('edittext', undefined, 3 ,{readonly: true});
-          this.reference.add('edittext', undefined, 'Play action' ,{readonly: true});
-          all_references.push(this.reference.add('dropdownlist', undefined, ''));
-          all_references.push(this.reference.add('dropdownlist', undefined, ''));
 
-          fill_dropdowns ( all_references [ (all_references.length-2) ], all_references [ (all_references.length-1) ] );
+        if (this.type === all_of_types_Arr[0]) { //is action type
+          this.id = id; id++;
+          this.reference = container.add('panel {orientation: "row", alignChildren: ["left","top"]}', undefined, '');
+          this.ind = this.reference.add('edittext', undefined, '' ,{readonly: true});
+          this.reference.add('edittext', undefined, 'Play action' ,{readonly: true});
+          T_Action_Set = this.reference.add('dropdownlist', undefined, '');
+          T_Action_List = this.reference.add('dropdownlist', undefined, '');
+          fill_dropdowns ( T_Action_Set, T_Action_List );
+
+          get_Index( this );
+
+        } else if ( this.type === all_of_types_Arr[1] ) {  //is Opening type
+          this.reference = container.add('panel {orientation: "row", alignChildren: ["left","top"]}', undefined, '');
+
+
         }
 
       }
 
    /////////////////////// MAIN OBJECT constructor *********************** END
+
+   /////////////////////// FUNCTIONS FOR MODULES *********************** START
+
+   function get_Index ( MODULE )  {
+     try {
+       for (i = 0; i < container.children.length; i++){
+         if (container.children[i] == MODULE.reference) {
+           MODULE.ind.text = i;
+         }
+       }
+     } catch (variable) {      } ;
+   }
+
+   /////////////////////// FUNCTIONS FOR MODULES *********************** END
 
    /////////////////////// TYPES of constructors *********************** START
 
@@ -101,6 +149,8 @@ var all_of_types_Arr = ['Action' , 'Opening' , 'Saving'];
     saveFile.writeln(txt);
     saveFile.close();
     }
+
+    ////////////// FUNCTION FOR SCANNING ACTION SETS START **********
 
     function populate() {
 
@@ -190,6 +240,9 @@ var all_of_types_Arr = ['Action' , 'Opening' , 'Saving'];
       }
       return names;
     };
+
+    ////////////// FUNCTION FOR SCANNING ACTION SETS END **********
+
 
     // SHOW THE WINDOW
     W.show();
