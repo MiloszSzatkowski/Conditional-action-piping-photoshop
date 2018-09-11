@@ -36,26 +36,50 @@ var addButton = Controls.add('button',undefined ,'+' );
 var subButton = Controls.add('button',undefined ,'-' );
 try {
   var children_count = (container.children.length) ? container.children.length : 0;
-} catch (variable) {
+} catch (variable) {            }
 
-}
-
-var sbar = W.add ("scrollbar", [0,0,20,600]);
+var sbar = W.add ("scrollbar", [0,0,20,10000]);
 
 ////////////// INTERACTIONS - CONTROL PANEL:
 
 addButton.onClick = function () {
   all_references.push ( new Module ('Action') );
-  updateUILayout (container)
-
+  updateUILayout (container);
 }
 
+sbar.onChanging = function () {
+container.location.y = -1 * this.value;
+updateUILayout (container);
+}
 
-    // UI FUNCTIONS:
-    function updateUILayout(thing){
-      thing.layout.layout(true);    //Update the layout
+//////////////// UI FUNCTIONS:
+function updateUILayout(thing){
+    thing.layout.layout(true);    //Update the layout
+}
+
+function reCount_children () {
+  if (container.children.length > 0) {
+    var children_bounds = 0;
+    for (var i = 0; i > container.children.length; i++  ) {
+      children_bounds = children_bounds + container.children[i].bounds.y;
     }
+    return children_bounds;
+  } else {
+    return;
+  }
+}
 
+// function scrollTo(end_position){
+
+//   sbar.maximumSize.height = children_bounds;
+//   updateUILayout (container);
+//   var T_diff =  end_position - start_position;
+//   if (end_position > start_position) {
+//     container.bounds.y = (container.bounds.top)-(T_diff);
+//   } else {
+//     container.bounds.y = (container.bounds.bottom)+(T_diff);
+//   }
+// }
 
 ////////////// set initial index of dropdowns:
 
