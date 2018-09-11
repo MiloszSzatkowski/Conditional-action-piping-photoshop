@@ -21,15 +21,16 @@ populate();
 
 /////////////////////////////////// UI START ***********************
 
-var W = new Window ('dialog {orientation: "row", alignChildren: ["fill","fill"], preferredSize: [600,400]}',
-"Conditional action piping", undefined, {closeButton: true});
+var W = new Window ('dialog {orientation: "row", alignChildren: ["fill","fill"], size: [1000,600]}',
+"Conditional action piping", undefined, {closeButton: true}, {resizeable:true});
 
-var container = W.add('panel {orientation: "column", alignChildren: ["fill","top"]}', undefined, 'asd');
+var container = W.add('panel {orientation: "column", alignChildren: ["fill","top"]}', undefined, '');
+
+container.add( 'edittext', undefined, '************************* Modules *************************', {readonly: true},
+{justify: "center"});
 
 
-
-
-var Controls = W.add('panel {orientation: "column"}', undefined, '');
+var Controls = W.add('panel {orientation: "column", size: [100,600]}', undefined, '');
 var typeOfAction = Controls.add('treeview', undefined, ['Play action', 'Open files', 'Save Files', 'Add Condition']);
 var addButton = Controls.add('button',undefined ,'+' );
 var subButton = Controls.add('button',undefined ,'-' );
@@ -45,7 +46,15 @@ var sbar = W.add ("scrollbar", [0,0,20,600]);
 
 addButton.onClick = function () {
   all_references.push ( new Module ('Action') );
+  updateUILayout (container)
+
 }
+
+
+    // UI FUNCTIONS:
+    function updateUILayout(thing){
+      thing.layout.layout(true);    //Update the layout
+    }
 
 
 ////////////// set initial index of dropdowns:
@@ -62,9 +71,11 @@ var T_Action_Set, T_Action_List;
         TYPE
       )  {
 
+
         this.type = TYPE;
 
         if (this.type === all_of_types_Arr[0]) { //is action type
+
           this.id = id; id++;
           this.reference = container.add('panel {orientation: "row", alignChildren: ["left","top"]}', undefined, '');
           this.ind = this.reference.add('edittext', undefined, '' ,{readonly: true});
@@ -77,6 +88,7 @@ var T_Action_Set, T_Action_List;
 
         } else if ( this.type === all_of_types_Arr[1] ) {  //is Opening type
           this.reference = container.add('panel {orientation: "row", alignChildren: ["left","top"]}', undefined, '');
+          this.ind = this.reference.add('edittext', undefined, '' ,{readonly: true});
 
 
         }
@@ -106,7 +118,7 @@ var T_Action_Set, T_Action_List;
     function Type_Action ( REFERENCE_SETS, REFERENCE_ACTIONS) {
       // handle (  REFERENCE   ) ;;;
       REFERENCE_SETS.onChange = function () {
-        alert( 'Reference function action asigned' );
+        // alert( 'Reference function action asigned' );
         REFERENCE_ACTIONS.removeAll();
         var action_arr = all_action_sets[parseInt(REFERENCE_SETS.selection.index)].actions_Arr;
         for (var i = 0; i < action_arr.length; i++) {
@@ -152,17 +164,22 @@ var T_Action_Set, T_Action_List;
 
     ////////////// FUNCTION FOR SCANNING ACTION SETS START **********
 
+    function Action_Set () {
+      this.actions_Arr = [];
+    }
+
     function populate() {
 
       actions_set_array = getActionSets();
 
         for ( var i = 0; i < actions_set_array.length; i++ ) {
 
-          all_action_sets[i] = new Action_set (actions_set_array[i].toString());
+          all_action_sets[i] = new Action_Set (actions_set_array[i].toString() );
 
           aList = getActions(actions_set_array[i]);
+
           for (var j = 0; j < aList.length; j++) {
-            all_action_sets[i].actions_Arr.push( aList[j].toString() );
+            all_action_sets[i].actions_Arr[j] = aList[j].toString() ;
           }
         }
     }
