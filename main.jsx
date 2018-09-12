@@ -12,6 +12,8 @@ var all_references = [];
 
 var id = 0;
 
+var children_bounds;
+
 ////////////////////////////////// GLOABAL VARIABLES END ***********************
 
 
@@ -24,13 +26,15 @@ populate();
 var W = new Window ('dialog {orientation: "row", alignChildren: ["fill","fill"], size: [1000,600]}',
 "Conditional action piping", undefined, {closeButton: true}, {resizeable:true});
 
-var container = W.add('panel {orientation: "column", alignChildren: ["fill","top"]}', undefined, '');
+var container = W.add('group {orientation: "column", alignChildren: ["fill","top"]}', undefined, '');
 
-container.add( 'edittext', undefined, '************************* Modules *************************', {readonly: true},
+// intro container - width management
+container.add( 'edittext', undefined,
+'************************************************** Modules *************************',
+{readonly: true},
 {justify: "center"});
 
-
-var Controls = W.add('panel {orientation: "column", size: [100,600]}', undefined, '');
+var Controls = W.add('panel {orientation: "column", alignChildren: ["fill","fill"]}', undefined, '');
 var typeOfAction = Controls.add('treeview', undefined, ['Play action', 'Open files', 'Save Files', 'Add Condition']);
 var addButton = Controls.add('button',undefined ,'+' );
 var subButton = Controls.add('button',undefined ,'-' );
@@ -38,7 +42,8 @@ try {
   var children_count = (container.children.length) ? container.children.length : 0;
 } catch (variable) {            }
 
-var sbar = W.add ("scrollbar", [0,0,20,10000]);
+var scroll_up
+var scroll_down
 
 ////////////// INTERACTIONS - CONTROL PANEL:
 
@@ -47,39 +52,35 @@ addButton.onClick = function () {
   updateUILayout (container);
 }
 
-sbar.onChanging = function () {
-container.location.y = -1 * this.value;
-updateUILayout (container);
-}
+//////////////// UI FUNCTIONS: ************************************************************ START
 
-//////////////// UI FUNCTIONS:
-function updateUILayout(thing){
-    thing.layout.layout(true);    //Update the layout
-}
+  ////////////// UI START    ***********-------------------------
 
-function reCount_children () {
-  if (container.children.length > 0) {
-    var children_bounds = 0;
-    for (var i = 0; i > container.children.length; i++  ) {
-      children_bounds = children_bounds + container.children[i].bounds.y;
-    }
-    return children_bounds;
-  } else {
-    return;
+  container.onShow = function () {
+    container.size.height = 10000;
   }
-}
 
-// function scrollTo(end_position){
+  ////////////// UI LAUNCHED ***********-------------------------
 
-//   sbar.maximumSize.height = children_bounds;
-//   updateUILayout (container);
-//   var T_diff =  end_position - start_position;
-//   if (end_position > start_position) {
-//     container.bounds.y = (container.bounds.top)-(T_diff);
-//   } else {
-//     container.bounds.y = (container.bounds.bottom)+(T_diff);
-//   }
-// }
+  function updateUILayout(thing){
+      thing.layout.layout(true);    //Update the layout
+  }
+
+  function reCount_children () {
+    if ((container.children.length > 0) || (container.children[0].size.height != undefined)) {
+      children_bounds = 0;
+      for (var i = 0; i > parseInt(container.children.length); i++  ) {
+        if (container.children[i].size.height != undefined) {
+          children_bounds = parseFloat(children_bounds) + parseFloat(container.children[i].size.height);
+          alert(parseFloat(container.children[i].size.height));
+        }
+      }
+    } else {
+      children_bounds = 1000;
+    }
+  }
+
+  //////////////// UI FUNCTIONS: ************************************************************ END
 
 ////////////// set initial index of dropdowns:
 
@@ -109,6 +110,9 @@ var T_Action_Set, T_Action_List;
           fill_dropdowns ( T_Action_Set, T_Action_List );
 
           get_Index( this );
+
+          //assign onChange callback
+          Type_Action ( T_Action_Set, T_Action_List );
 
         } else if ( this.type === all_of_types_Arr[1] ) {  //is Opening type
           this.reference = container.add('panel {orientation: "row", alignChildren: ["left","top"]}', undefined, '');
@@ -165,7 +169,7 @@ var T_Action_Set, T_Action_List;
 
     // ACTION TYPE END
 
-    /////////////////////// TYPES of constructors *********************** START
+    /////////////////////// TYPES of constructors *********************** END
 
     function saveTxt(txt)
     {
@@ -188,7 +192,8 @@ var T_Action_Set, T_Action_List;
 
     ////////////// FUNCTION FOR SCANNING ACTION SETS START **********
 
-    function Action_Set () {
+    function Action_Set (name) {
+      this.name = name;
       this.actions_Arr = [];
     }
 
