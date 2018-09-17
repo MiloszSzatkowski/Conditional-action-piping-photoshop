@@ -17,7 +17,7 @@ var children_bounds;
 ////////////////////////////////// GLOABAL VARIABLES END ***********************
 
 
-// SCAN ALL AVAILABLE ACTIONS AND ADD THEM TO ARRAY
+// SCAN ALL AVAILABLE ACTIONS AND ADD THEM TO ARRAYS
 populate();
 // -------------
 
@@ -26,7 +26,7 @@ populate();
 var W = new Window ('dialog {orientation: "row", alignChildren: ["fill","fill"], size: [1000,600]}',
 "Conditional action piping", undefined, {closeButton: true}, {resizeable:true});
 
-var container = W.add('group {orientation: "column", alignChildren: ["fill","top"]}', undefined, '');
+var container = W.add('panel {orientation: "column", alignChildren: ["fill","top"]}', undefined, '');
 
 // intro container - width management
 container.add( 'edittext', undefined,
@@ -35,48 +35,77 @@ container.add( 'edittext', undefined,
 {justify: "center"});
 
 var Controls = W.add('panel {orientation: "column", alignChildren: ["fill","fill"]}', undefined, '');
-var typeOfAction = Controls.add('treeview', undefined, ['Play action', 'Open files', 'Save Files', 'Add Condition']);
-var addButton = Controls.add('button',undefined ,'+' );
-var subButton = Controls.add('button',undefined ,'-' );
-try {
-  var children_count = (container.children.length) ? container.children.length : 0;
-} catch (variable) {            }
+var typeOfAction = Controls.add('dropdownlist', undefined, ['Play action', 'Open files', 'Save Files', 'Add Condition']);
 
-var scroll_up
-var scroll_down
+var desc_add_sub = Controls.add ('statictext', undefined, 'Controls:')
 
-////////////// INTERACTIONS - CONTROL PANEL:
+var scroll_up = Controls.add ('button', undefined, 'Scroll up' );
+var scroll_down = Controls.add ('button', undefined, 'Scroll down' );
 
-addButton.onClick = function () {
-  all_references.push ( new Module ('Action') );
-  updateUILayout (container);
-}
+hr(Controls);
+
+var addButton = Controls.add('button',undefined ,'+ Add module +' );
+var subButton = Controls.add('button',undefined ,'- Substract module -' );
+
+hr(Controls);
 
 //////////////// UI FUNCTIONS: ************************************************************ START
 
-  ////////////// UI START    ***********-------------------------
+  ////////////// ON SHOW    ***********-------------------------
 
   container.onShow = function () {
     container.size.height = 10000;
   }
 
-  ////////////// UI LAUNCHED ***********-------------------------
+  ////////////// INTERACTIONS:
+
+  addButton.onClick = function () {
+    all_references.push ( new Module ('Action') );
+    updateUILayout (container);
+  }
+
+  scroll_up.onClick = function () {
+    try {
+      for (var i = 0; i < container.children.length; i++) {
+        container.children[i].location.y = container.children[i].location.y + 20;
+      }
+    } catch (e) {    }
+  }
+
+  scroll_down.onClick = function () {
+    try {
+      for (var i = 0; i < container.children.length; i++) {
+        container.children[i].location.y = container.children[i].location.y - 20;
+      }
+    } catch (e) {    }
+  }
+
+  ////////////// UI MISC FUNCTIONS ***********-------------------------
+
+  function hr (parent_el) {
+    parent_el.add('panel', undefined, '');
+  }
 
   function updateUILayout(thing){
       thing.layout.layout(true);    //Update the layout
   }
 
-  function reCount_children () {
-    if ((container.children.length > 0) || (container.children[0].size.height != undefined)) {
-      children_bounds = 0;
-      for (var i = 0; i > parseInt(container.children.length); i++  ) {
-        if (container.children[i].size.height != undefined) {
-          children_bounds = parseFloat(children_bounds) + parseFloat(container.children[i].size.height);
-          alert(parseFloat(container.children[i].size.height));
+  function reCount_children_height (parent_el) {
+    try{
+      var children_bounds;
+      for (var i = 0; i > parseInt(parent_el.children.length); i++  ) {
+        if (parent_el.children[i].size.height != undefined) {
+          if (i === 0) {
+            children_bounds = parseFloat(parent_el.children[i].size.height);
+          } else if (i > 0){
+            children_bounds = children_bounds + parseFloat(parent_el.children[i].size.height);
+          }
         }
       }
-    } else {
-      children_bounds = 1000;
+      return children_bounds;
+    } catch (e) {
+      alert(e);
+      return 0;
     }
   }
 
@@ -134,7 +163,13 @@ var T_Action_Set, T_Action_List;
            MODULE.ind.text = i;
          }
        }
-     } catch (variable) {      } ;
+     } catch (variable) {   alert( variable)   } ;
+   }
+
+   function refresh_index () {
+     for (var i = 0; i < all_references.children.length; i++) {
+       get_Index(all_references.children[i]);
+     }
    }
 
    /////////////////////// FUNCTIONS FOR MODULES *********************** END
