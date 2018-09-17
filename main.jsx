@@ -72,6 +72,10 @@ var refresh_button = Controls.add('button', undefined, 'Refresh');
     all_references.push ( new Module ('Action') );
     updateUILayout (container);
 
+    refresh_view();
+  }
+
+  function refresh_view() {
     // move to location of added module - workaround at this moment only
     if (container.children.length > 11) {
       for (var i = 0; i < container.children.length; i++) {
@@ -79,7 +83,6 @@ var refresh_button = Controls.add('button', undefined, 'Refresh');
         container.children[i].location.y = container.children[i].location.y - t_sum - container.children.length;
       }
     }
-
   }
 
   subButton.onClick = function () {
@@ -93,28 +96,9 @@ var refresh_button = Controls.add('button', undefined, 'Refresh');
       }
       refresh_indexes();
       updateUILayout (container);
+      refresh_view();
   }
 
-  function container_selection () {
-    var at_least_one_module_selected = false;
-      for (var i = 1; i < container.children.length; i++) {
-        if(container.children[i].children[0].value){
-          at_least_one_module_selected = true;
-          break;
-        }
-      }
-      if (at_least_one_module_selected) {
-        var selected = [];
-          for (var i = 1; i < container.children.length; i++) {
-            if(container.children[i].children[0].value){
-              selected.push(container.children[i]);
-            }
-          }
-          return selected;
-      } else {
-        return 0;
-      }
-    }
 
   scroll_up.onClick = function () {
     try {
@@ -133,36 +117,75 @@ var refresh_button = Controls.add('button', undefined, 'Refresh');
   }
 
   move_up.onClick = function () {
-    var move_arr = container_selection ();
-    if (move_arr !== 0) {
-      for (var i = 0; i < move.length; i++) {
-        move[i]
+    // delete selected modules
+      var move_arr = container_selection();
+
+      if (move_arr !== 0) {
+        for (var i = 0; i < move_arr.length; i++) {
+          container.add (move_arr[i]);
+        }
       }
-    }
+      refresh_indexes();
+      updateUILayout (container);
+      refresh_view();
   }
 
   refresh_button.onClick = function   () {
     refresh_indexes ();
+    updateUILayout (container);
   }
 
   ////////////// UI MISC FUNCTIONS ***********-------------------------
 
-  function hr (parent_el) {
-    parent_el.add('panel', undefined, '');
-  }
+   function newType (ELEMENT) {
+     if (ELEMENT.children[2] == 'Play action') {
+       
+     }
+   }
 
-  function updateUILayout(thing){
-      thing.layout.layout(true);    //Update the layout
-  }
+   function functionName() {
 
-  function reCount_children_height (parent_el) {
-    try{
-      var children_bounds = parseFloat(parent_el.children[1].size.height) * (parent_el.children.length-1);
-      return children_bounds;
-    } catch (e) {
-      return 0;
+   }
+
+    function hr (parent_el) {
+      parent_el.add('panel', undefined, '');
     }
-  }
+
+    function updateUILayout(thing){
+        thing.layout.layout(true);    //Update the layout
+    }
+
+    function reCount_children_height (parent_el) {
+      try{
+        var children_bounds = parseFloat(parent_el.children[1].size.height) * (parent_el.children.length-1);
+        return children_bounds;
+      } catch (e) {
+        return 0;
+      }
+    }
+
+    function container_selection () {
+      var at_least_one_module_selected = false;
+      if (container.children.length > 1) {
+        for (var i = 1; i < container.children.length; i++) {
+          if(container.children[i].children[0].value){
+            at_least_one_module_selected = true;
+            break;
+          }
+        }
+      }
+        if (at_least_one_module_selected) {
+          var selected = [];
+            for (var i = 1; i < container.children.length; i++) {
+              if(container.children[i].children[0].value){
+                selected.push(container.children[i]);
+              }
+            }
+            return selected;
+        } else {
+          return 0;
+        }
+      }
 
   //////////////// UI FUNCTIONS: ************************************************************ END
 
