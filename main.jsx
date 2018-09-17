@@ -23,14 +23,14 @@ populate();
 
 /////////////////////////////////// UI START ***********************
 
-var W = new Window ('dialog {orientation: "row", alignChildren: ["fill","fill"], size: [1000,600]}',
+var W = new Window ('dialog {orientation: "row", alignChildren: ["fill","fill"], size: [1100,600]}',
 "Conditional action piping", undefined, {closeButton: true}, {resizeable:true});
 
 var container = W.add('panel {orientation: "column", alignChildren: ["fill","top"]}', undefined, '');
 
 // intro container - width management
-container.add( 'edittext', undefined,
-'************************************************** Modules *************************',
+container.add( 'statictext', undefined,
+' ---------------------------- Modules ---------------------------- ',
 {readonly: true},
 {justify: "center"});
 
@@ -49,6 +49,8 @@ var subButton = Controls.add('button',undefined ,'- Substract module -' );
 
 hr(Controls);
 
+var refresh_button = Controls.add('button', undefined, 'Refresh');
+
 //////////////// UI FUNCTIONS: ************************************************************ START
 
   ////////////// ON SHOW    ***********-------------------------
@@ -59,15 +61,36 @@ hr(Controls);
 
   ////////////// INTERACTIONS:
 
+  var scrolling_treshold = 40;
+
   addButton.onClick = function () {
     all_references.push ( new Module ('Action') );
     updateUILayout (container);
+
+    if (container.children.length > 11) {
+      for (var i = 0; i < container.children.length; i++) {
+        var t_sum = reCount_children_height(container) ;
+        container.children[i].location.y = container.children[i].location.y - t_sum - container.children.length;
+      }
+    }
+
+  }
+
+  subButton.onClick = function () {
+    // if any module is selected
+    if (true) {
+
+    }
+  }
+
+  function container_selection () {
+    container.children[i].
   }
 
   scroll_up.onClick = function () {
     try {
       for (var i = 0; i < container.children.length; i++) {
-        container.children[i].location.y = container.children[i].location.y + 20;
+        container.children[i].location.y = container.children[i].location.y + scrolling_treshold;
       }
     } catch (e) {    }
   }
@@ -75,9 +98,13 @@ hr(Controls);
   scroll_down.onClick = function () {
     try {
       for (var i = 0; i < container.children.length; i++) {
-        container.children[i].location.y = container.children[i].location.y - 20;
+        container.children[i].location.y = container.children[i].location.y - scrolling_treshold;
       }
     } catch (e) {    }
+  }
+
+  refresh_button.onClick = function   () {
+    refresh_indexes ();
   }
 
   ////////////// UI MISC FUNCTIONS ***********-------------------------
@@ -92,19 +119,9 @@ hr(Controls);
 
   function reCount_children_height (parent_el) {
     try{
-      var children_bounds;
-      for (var i = 0; i > parseInt(parent_el.children.length); i++  ) {
-        if (parent_el.children[i].size.height != undefined) {
-          if (i === 0) {
-            children_bounds = parseFloat(parent_el.children[i].size.height);
-          } else if (i > 0){
-            children_bounds = children_bounds + parseFloat(parent_el.children[i].size.height);
-          }
-        }
-      }
+      var children_bounds = parseFloat(parent_el.children[1].size.height) * (parent_el.children.length-1);
       return children_bounds;
     } catch (e) {
-      alert(e);
       return 0;
     }
   }
@@ -131,12 +148,21 @@ var T_Action_Set, T_Action_List;
         if (this.type === all_of_types_Arr[0]) { //is action type
 
           this.id = id; id++;
-          this.reference = container.add('panel {orientation: "row", alignChildren: ["left","top"]}', undefined, '');
-          this.ind = this.reference.add('edittext', undefined, '' ,{readonly: true});
-          this.reference.add('edittext', undefined, 'Play action' ,{readonly: true});
+          this.reference = container.add('panel {orientation: "row", alignChildren: ["fill","top"]}', undefined, '');
+
+          T_Checkbox = this.reference.add('checkbox', undefined, '');
+          T_Checkbox.value = false;
+
+          this.ind = this.reference.add('statictext', undefined, '' ,{readonly: true});
+          this.reference.add('statictext', undefined, 'Play action' ,{readonly: true});
+
+
           T_Action_Set = this.reference.add('dropdownlist', undefined, '');
           T_Action_List = this.reference.add('dropdownlist', undefined, '');
           fill_dropdowns ( T_Action_Set, T_Action_List );
+
+            T_Action_Set.selection = 0;
+            T_Action_List.selection = 0;
 
           get_Index( this );
 
@@ -161,14 +187,16 @@ var T_Action_Set, T_Action_List;
        for (i = 0; i < container.children.length; i++){
          if (container.children[i] == MODULE.reference) {
            MODULE.ind.text = i;
+           return;
          }
        }
+       alert ("No idex found");
      } catch (variable) {   alert( variable)   } ;
    }
 
-   function refresh_index () {
-     for (var i = 0; i < all_references.children.length; i++) {
-       get_Index(all_references.children[i]);
+   function refresh_indexes () {
+     for (var i = 0; i < all_references.length; i++) {
+       get_Index(all_references[i]);
      }
    }
 
