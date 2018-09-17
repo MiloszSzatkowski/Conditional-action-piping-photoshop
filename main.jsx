@@ -49,6 +49,11 @@ var subButton = Controls.add('button',undefined ,'- Substract module -' );
 
 hr(Controls);
 
+var move_up = Controls.add('button',undefined ,'Move module up' );
+var move_down = Controls.add('button',undefined ,'Move module down' );
+
+hr(Controls);
+
 var refresh_button = Controls.add('button', undefined, 'Refresh');
 
 //////////////// UI FUNCTIONS: ************************************************************ START
@@ -67,6 +72,7 @@ var refresh_button = Controls.add('button', undefined, 'Refresh');
     all_references.push ( new Module ('Action') );
     updateUILayout (container);
 
+    // move to location of added module - workaround at this moment only
     if (container.children.length > 11) {
       for (var i = 0; i < container.children.length; i++) {
         var t_sum = reCount_children_height(container) ;
@@ -77,15 +83,38 @@ var refresh_button = Controls.add('button', undefined, 'Refresh');
   }
 
   subButton.onClick = function () {
-    // if any module is selected
-    if (true) {
+    // delete selected modules
+      var deletion_Arr = container_selection();
 
-    }
+      if (deletion_Arr !== 0) {
+        for (var i = 0; i < deletion_Arr.length; i++) {
+          container.remove (deletion_Arr[i]);
+        }
+      }
+      refresh_indexes();
+      updateUILayout (container);
   }
 
   function container_selection () {
-    container.children[i].
-  }
+    var at_least_one_module_selected = false;
+      for (var i = 1; i < container.children.length; i++) {
+        if(container.children[i].children[0].value){
+          at_least_one_module_selected = true;
+          break;
+        }
+      }
+      if (at_least_one_module_selected) {
+        var selected = [];
+          for (var i = 1; i < container.children.length; i++) {
+            if(container.children[i].children[0].value){
+              selected.push(container.children[i]);
+            }
+          }
+          return selected;
+      } else {
+        return 0;
+      }
+    }
 
   scroll_up.onClick = function () {
     try {
@@ -101,6 +130,15 @@ var refresh_button = Controls.add('button', undefined, 'Refresh');
         container.children[i].location.y = container.children[i].location.y - scrolling_treshold;
       }
     } catch (e) {    }
+  }
+
+  move_up.onClick = function () {
+    var move_arr = container_selection ();
+    if (move_arr !== 0) {
+      for (var i = 0; i < move.length; i++) {
+        move[i]
+      }
+    }
   }
 
   refresh_button.onClick = function   () {
@@ -190,13 +228,16 @@ var T_Action_Set, T_Action_List;
            return;
          }
        }
-       alert ("No idex found");
-     } catch (variable) {   alert( variable)   } ;
+     } catch (variable) {    } ;
    }
 
    function refresh_indexes () {
      for (var i = 0; i < all_references.length; i++) {
-       get_Index(all_references[i]);
+       try {
+         get_Index(all_references[i]);
+       } catch (e) {
+         all_references.splice(i,1);
+       }
      }
    }
 
