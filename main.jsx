@@ -338,18 +338,15 @@ var T_Action_Set, T_Action_List;
 
       if (EXTENSIONS_FILTER_ARRAY === false) {
         //any file is allowed
-
+        alert ( 'No files met provided conditions for a specified format or format was not selected.' );
+        return;
       }
 
       for (var i = 0; i < inputFiles.length; i++){
         splitPath = inputFiles[i].toString().split(".");
         extension = splitPath[splitPath.length-1];
         if (
-
-        extension=='jpeg'     ||
-        extension=='jpg'      ||
-        extension=='JPEG'     ||
-        extension=='JPG'
+        extension_of_file_is_in_filter_array(extension , EXTENSIONS_FILTER_ARRAY)
         ) {
           files_to_pr.push( inputFiles[i] );
 
@@ -362,19 +359,17 @@ var T_Action_Set, T_Action_List;
       }
     }
 
-    function check_extension(EXTENSIONS_FILTER_ARRAY) {
+    function elaborate_on_extension_array(EXTENSIONS_FILTER_ARRAY)  {
+      //add jpeg, jpg, JPG, toLowerCase, uppercase etc
+    }
 
-      if (EXTENSIONS_FILTER_ARRAY !== null || EXTENSIONS_FILTER_ARRAY !== undefined) {
-        for (var i = 0; i < EXTENSIONS_FILTER_ARRAY.length; i++){
-          if (extension=='TIF'      ||      extension=='tif'     ) {
-
-          }
+    function extension_of_file_is_in_filter_array(extension , EXTENSIONS_FILTER_ARRAY) {
+      for (var i = 0; i < EXTENSIONS_FILTER_ARRAY.length; i++){
+        if (extension == EXTENSIONS_FILTER_ARRAY[i]) {
+          break;
         }
-      } else {
-        alert( 'Extension bool value error' );
-        return;
       }
-
+      return;
     }
 
     /////////////////////// TYPES of constructors *********************** END
