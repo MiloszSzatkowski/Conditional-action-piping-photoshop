@@ -187,6 +187,10 @@ var refresh_button = Controls.add('button', undefined, 'Refresh');
         }
       }
 
+  function saveModule()  {
+    // save modules to stringified array
+  }
+
   //////////////// UI FUNCTIONS: ************************************************************ END
 
 ////////////// set initial index of dropdowns:
@@ -217,7 +221,6 @@ var T_Action_Set, T_Action_List;
           this.ind = this.reference.add('statictext', undefined, '' ,{readonly: true});
           this.reference.add('statictext', undefined, 'Play action' ,{readonly: true});
 
-
           T_Action_Set = this.reference.add('dropdownlist', undefined, '');
           T_Action_List = this.reference.add('dropdownlist', undefined, '');
           fill_dropdowns ( T_Action_Set, T_Action_List );
@@ -231,9 +234,19 @@ var T_Action_Set, T_Action_List;
           Type_Action ( T_Action_Set, T_Action_List );
 
         } else if ( this.type === all_of_types_Arr[1] ) {  //is Opening type
-          this.reference = container.add('panel {orientation: "row", alignChildren: ["left","top"]}', undefined, '');
-          this.ind = this.reference.add('edittext', undefined, '' ,{readonly: true});
 
+          this.id = id; id++;
+          this.reference = container.add('panel {orientation: "row", alignChildren: ["left","top"]}', undefined, '');
+
+          T_Checkbox = this.reference.add('checkbox', undefined, '');
+          T_Checkbox.value = false;
+
+          this.ind = this.reference.add('edittext', undefined, '' ,{readonly: true});
+          this.reference.add('statictext', undefined, 'Open files' ,{readonly: true});
+
+
+
+          get_Index( this );
 
         }
 
@@ -295,6 +308,92 @@ var T_Action_Set, T_Action_List;
       }
 
     // ACTION TYPE END
+
+    // OPEN TYPE START:
+
+    var folder_box = win.fGroup.add('checkbox', undefined, 'Przetworz folder | Process a folder');
+    //global scope
+    var extension, splitPath, inputFiles, outputFolder;
+
+    win.fGroup.add('statictext', undefined, 'Lista plikow | List of files:');
+    var mainGroup = win.fGroup.add( 'dropdownlist', undefined, 'Lista plikow | List of files:' );
+
+    mainGroup.add('item', '_________');
+
+    var desc_place = win.fGroup.add('statictext', undefined, 'Folder zapisu | Folder to save files:')
+    var place_of_saving = win.fGroup.add('edittext', undefined, '____________', {multiline: true, readonly: true});
+
+    function Type_Open (OPEN_BUTTON, FILTER_FORMAT, FILTER_NAME, OUTPUT_PATH_STATIC_TEXT) {
+      OPEN_BUTTON.onClick = function () {
+        if (true) {
+          var inputFolder = Folder.selectDialog("Otworz folder do przetworzenia / Open folder for processing");
+          if (inputFolder == null) {
+            alert ( "No folder selected."  );
+            return;
+
+          } else {
+              inputFiles = inputFolder.getFiles();
+              cleanList();
+
+            for (var i = 0; i < files_to_pr.length; i++){
+              var temp_arr = decodeURI(files_to_pr[i].toString()).split('/');
+              mainGroup.add('item', temp_arr[temp_arr.length-1]);
+            }
+
+            outputFolder = Folder.selectDialog("Otworz folder do zapisania / Open folder for saving");
+            if (outputFolder != null) {
+              OUTPUT_PATH_STATIC_TEXT.text = ( decodeURI(outputFolder.toString()) );
+            } else {
+              alert ( "No folder selected."  );
+              return;
+
+            }
+          }
+        } else {
+          mainGroup.removeAll();
+          place_of_saving.text = '';
+        }
+      }
+    }
+
+    function cleanList(EXTENSIONS_FILTER_ARRAY) {
+      var files_to_pr = [];
+
+      if (EXTENSIONS_FILTER_ARRAY === false) {
+        //any file is allowed
+        alert ( 'No files met provided conditions for a specified format or format was not selected.' );
+        return;
+      }
+
+      for (var i = 0; i < inputFiles.length; i++){
+        splitPath = inputFiles[i].toString().split(".");
+        extension = splitPath[splitPath.length-1];
+        if (
+        extension_of_file_is_in_filter_array(extension , EXTENSIONS_FILTER_ARRAY)
+        ) {
+          files_to_pr.push( inputFiles[i] );
+
+        }
+      }
+      if (files_to_pr != null) {
+        return files_to_pr;
+      } else {
+        alert ( 'No files met provided conditions.' );
+      }
+    }
+
+    function elaborate_on_extension_array(EXTENSIONS_FILTER_ARRAY)  {
+      //add jpeg, jpg, JPG, toLowerCase, uppercase etc
+    }
+
+    function extension_of_file_is_in_filter_array(extension , EXTENSIONS_FILTER_ARRAY) {
+      for (var i = 0; i < EXTENSIONS_FILTER_ARRAY.length; i++){
+        if (extension == EXTENSIONS_FILTER_ARRAY[i]) {
+          break;
+        }
+      }
+      return;
+    }
 
     /////////////////////// TYPES of constructors *********************** END
 
@@ -415,6 +514,12 @@ var T_Action_Set, T_Action_List;
     };
 
     ////////////// FUNCTION FOR SCANNING ACTION SETS END **********
+
+///////////// MAIN ALGORITHMS ********** START ************
+
+/////////////////////////////////// *** Process Folder
+
+
 
 
     // SHOW THE WINDOW
