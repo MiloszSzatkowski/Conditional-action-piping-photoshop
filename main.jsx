@@ -178,7 +178,7 @@ function container_selection() {
   var at_least_one_module_selected = false;
   if (container.children.length > 1) {
     for (var i = 1; i < container.children.length; i++) {
-      if (container.children[i].children[0].value) {
+      if (container.children[i].children[0].children[0].value) {
         at_least_one_module_selected = true;
         break;
       }
@@ -187,7 +187,7 @@ function container_selection() {
   if (at_least_one_module_selected) {
     var selected = [];
     for (var i = 1; i < container.children.length; i++) {
-      if (container.children[i].children[0].value) {
+      if (container.children[i].children[0].children[0].value) {
         selected.push(container.children[i]);
       }
     }
