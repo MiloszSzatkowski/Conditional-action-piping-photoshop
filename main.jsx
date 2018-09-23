@@ -288,13 +288,17 @@ function Module(TYPE) {
 
     this.T_group = this.reference.add('group {orientation: "column", alignChildren: ["left","top"]}', undefined, '');
 
-        T_Input_Describ_ = this.T_group.add('statictext', undefined, 'Input path:');
+      this.T_01_group = this.T_group.add('panel {orientation: "column", alignChildren: ["left","top"]}', undefined, '');
 
-        T_Input_Static_Text = this.T_group.add('statictext', undefined, '____________________________________________');
+          T_Input_Describ_ = this.T_01_group.add('statictext', undefined, 'Input path:');
 
-        T_Output_Describ_ = this.T_group.add('statictext', undefined, 'Output path:');
+          T_Input_Static_Text = this.T_01_group.add('statictext', undefined, '____________________________________________');
 
-        T_Output_Static_Text = this.T_group.add('statictext', undefined, '____________________________________________');
+      this.T_02_group = this.T_group.add('panel {orientation: "column", alignChildren: ["left","top"]}', undefined, '');
+
+          T_Output_Describ_ = this.T_02_group.add('statictext', undefined, 'Output path:');
+
+          T_Output_Static_Text = this.T_02_group.add('statictext', undefined, '____________________________________________');
 
     get_Index(this);
 
@@ -401,7 +405,7 @@ function Type_Open(OPEN_BUTTON, OUTPUT_PATH_STATIC_TEXT, INPUT_PATH_STATIC_TEXT)
 
       } else {
 
-        alert(inputFolder);
+        // alert(inputFolder);
 
         INPUT_PATH_STATIC_TEXT.text = '';
         INPUT_PATH_STATIC_TEXT.text = decodeURI(inputFolder.toString());
@@ -414,7 +418,7 @@ function Type_Open(OPEN_BUTTON, OUTPUT_PATH_STATIC_TEXT, INPUT_PATH_STATIC_TEXT)
         outputFolder = Folder.selectDialog("Output folder");
         if (outputFolder != null) {
 
-          alert(outputFolder);
+          // alert(outputFolder);
 
           OUTPUT_PATH_STATIC_TEXT.text = '';
           OUTPUT_PATH_STATIC_TEXT.text = decodeURI(outputFolder.toString());
