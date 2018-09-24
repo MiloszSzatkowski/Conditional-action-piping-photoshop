@@ -61,7 +61,7 @@ hr(Controls);
 
 var refresh_button = Controls.add('button', undefined, 'Refresh');
 
-/ / ////////////// UI FUNCTIONS: ************************************************************ START
+////////////// UI FUNCTIONS: ************************************************************ START
 
 ////////////// ON SHOW    ***********-------------------------
 
@@ -85,6 +85,14 @@ add_Action_Button.onClick = function() {
 add_Opening_Button.onClick = function() {
 
   all_references.push(new Module('Opening'));
+  updateUILayout(container);
+
+  refresh_view();
+}
+
+add_Saving_Button.onClick = function() {
+
+  all_references.push(new Module('Saving'));
   updateUILayout(container);
 
   refresh_view();
@@ -244,8 +252,9 @@ function Module(TYPE) {
       this.S_group.add('statictext', undefined, 'Conditions:');
 
       T_Bool_Condition_Action = this.S_group.add('checkbox', undefined, 'Filename condition:');
-
-      T_Condition_Action_Text = this.S_group.add('edittext', undefined, '_________________');
+      T_Condition_Action_Text = this.S_group.add('edittext', undefined, '');
+      T_Condition_Action_Text.minimumSize.width = 150;
+      T_Condition_Action_Text.minimumSize.height = 21;
 
     get_Index(this);
 
@@ -260,31 +269,31 @@ function Module(TYPE) {
 
     this.F_group = this.reference.add('group {orientation: "row", alignChildren: ["left","top"]}', undefined, '');
 
-    T_Checkbox = this.F_group.add('checkbox', undefined, '');
-    T_Checkbox.value = false;
+      T_Checkbox = this.F_group.add('checkbox', undefined, '');
+      T_Checkbox.value = false;
 
-    this.ind = this.F_group.add('statictext', undefined, '', {readonly: true});
-    this.F_group.add('statictext', undefined, 'Open files');
+      this.ind = this.F_group.add('statictext', undefined, '', {readonly: true});
+      this.F_group.add('statictext', undefined, 'Open files');
 
-    T_Choose_Folder = this.F_group.add('button', undefined, 'Choose folder');
+      T_Choose_Folder = this.F_group.add('button', undefined, 'Choose folder');
 
     this.S_group = this.reference.add('group {orientation: "row", alignChildren: ["left","top"]}', undefined, '');
 
-    this.S_group.add('statictext', undefined, 'Filter format:');
+      this.S_group.add('statictext', undefined, 'Filter format:');
 
-    T_jpg = this.S_group.add('checkbox', undefined, 'jpg');
-    T_tif = this.S_group.add('checkbox', undefined, 'tif');
-    T_psd = this.S_group.add('checkbox', undefined, 'psd');
-    T_png = this.S_group.add('checkbox', undefined, 'png');
-    T_jpg.value = true;
-    T_tif.value = true;
-    T_psd.value = true;
-    T_png.value = true;
+      T_jpg = this.S_group.add('checkbox', undefined, 'jpg');
+      T_tif = this.S_group.add('checkbox', undefined, 'tif');
+      T_psd = this.S_group.add('checkbox', undefined, 'psd');
+      T_png = this.S_group.add('checkbox', undefined, 'png');
+      T_jpg.value = true;
+      T_tif.value = true;
+      T_psd.value = true;
+      T_png.value = true;
 
-    T_Bool_Condition_Action = this.S_group.add('checkbox', undefined, 'Filename condition:');
-
-    T_Condition_Action_Text = this.S_group.add('edittext', undefined, '__________');
-    T_Condition_Action_Text.text = '';
+      T_Bool_Condition_Action = this.S_group.add('checkbox', undefined, 'Filename condition:');
+      T_Condition_Action_Text = this.S_group.add('edittext', undefined, '');
+      T_Condition_Action_Text.minimumSize.width = 150;
+      T_Condition_Action_Text.minimumSize.height = 21;
 
     this.T_group = this.reference.add('group {orientation: "column", alignChildren: ["left","top"]}', undefined, '');
 
@@ -292,18 +301,40 @@ function Module(TYPE) {
 
           T_Input_Describ_ = this.T_01_group.add('statictext', undefined, 'Input path:');
 
-          T_Input_Static_Text = this.T_01_group.add('statictext', undefined, '____________________________________________');
+          T_Input_Static_Text = this.T_01_group.add('statictext', undefined, '_______________________________________________________________');
 
       this.T_02_group = this.T_group.add('panel {orientation: "column", alignChildren: ["left","top"]}', undefined, '');
 
           T_Output_Describ_ = this.T_02_group.add('statictext', undefined, 'Output path:');
 
-          T_Output_Static_Text = this.T_02_group.add('statictext', undefined, '____________________________________________');
+          T_Output_Static_Text = this.T_02_group.add('statictext', undefined, '_______________________________________________________________');
 
     get_Index(this);
 
     //assign onChange callback ||   jpg, tif, psd, png
     Type_Open(T_Choose_Folder, T_Output_Static_Text, T_Input_Static_Text)
+
+  } else if (this.type === all_of_types_Arr[2]) { //is Saving type
+
+    this.id = id;
+    id++;
+    this.reference = container.add('panel {orientation: "column", alignChildren: ["left","top"]}', undefined, '');
+
+      this.F_group = this.reference.add('group {orientation: "row", alignChildren: ["left","top"]}', undefined, '');
+
+        T_Checkbox = this.F_group.add('checkbox', undefined, '');
+        T_Checkbox.value = false;
+
+        this.ind = this.F_group.add('statictext', undefined, '', {readonly: true});
+        this.F_group.add('statictext', undefined, 'Save files');
+
+      this.S_group = this.reference.add('group {orientation: "row", alignChildren: ["left","top"]}', undefined, '');
+
+    get_Index(this);
+
+    //assign onChange callback - save
+    Type_Save( );
+
 
   }
 
@@ -415,6 +446,8 @@ function Type_Open(OPEN_BUTTON, OUTPUT_PATH_STATIC_TEXT, INPUT_PATH_STATIC_TEXT)
         //
         cleanList(inputFiles, T_EXTENSIONS_FILTER_ARRAY);
 
+        // alert(inputFiles);
+
         outputFolder = Folder.selectDialog("Output folder");
         if (outputFolder != null) {
 
@@ -488,6 +521,17 @@ function extension_of_file_is_in_filter_array(extension, EXTENSIONS_FILTER_ARRAY
   }
   // no matching extension
   return false;
+}
+
+// OPEN TYPE END
+
+//SAVE TYPE START
+
+
+//SAVE TYPE END
+
+function Type_Save() {
+
 }
 
 /////////////////////// TYPES of constructors *********************** END
