@@ -249,8 +249,6 @@ function Module(TYPE) {
 
     this.S_group = this.reference.add('group {orientation: "row", alignChildren: ["left","top"]}', undefined, '');
 
-      this.S_group.add('statictext', undefined, 'Conditions:');
-
       T_Bool_Condition_Action = this.S_group.add('checkbox', undefined, 'Filename condition:');
       T_Condition_Action_Text = this.S_group.add('edittext', undefined, '');
       T_Condition_Action_Text.minimumSize.width = 150;
@@ -275,7 +273,7 @@ function Module(TYPE) {
       this.ind = this.F_group.add('statictext', undefined, '', {readonly: true});
       this.F_group.add('statictext', undefined, 'Open files');
 
-      T_Choose_Folder = this.F_group.add('button', undefined, 'Choose folder');
+      T_Choose_Folder = this.F_group.add('button', undefined, 'Choose input folder');
 
     this.S_group = this.reference.add('group {orientation: "row", alignChildren: ["left","top"]}', undefined, '');
 
@@ -303,16 +301,10 @@ function Module(TYPE) {
 
           T_Input_Static_Text = this.T_01_group.add('statictext', undefined, '_______________________________________________________________');
 
-      this.T_02_group = this.T_group.add('panel {orientation: "column", alignChildren: ["left","top"]}', undefined, '');
-
-          T_Output_Describ_ = this.T_02_group.add('statictext', undefined, 'Output path:');
-
-          T_Output_Static_Text = this.T_02_group.add('statictext', undefined, '_______________________________________________________________');
-
     get_Index(this);
 
     //assign onChange callback ||   jpg, tif, psd, png
-    Type_Open(T_Choose_Folder, T_Output_Static_Text, T_Input_Static_Text)
+    Type_Open(T_Choose_Folder, T_Input_Static_Text)
 
   } else if (this.type === all_of_types_Arr[2]) { //is Saving type
 
@@ -328,12 +320,26 @@ function Module(TYPE) {
         this.ind = this.F_group.add('statictext', undefined, '', {readonly: true});
         this.F_group.add('statictext', undefined, 'Save files');
 
-      this.S_group = this.reference.add('group {orientation: "row", alignChildren: ["left","top"]}', undefined, '');
+          T_Choose_Folder = this.F_group.add('button', undefined, 'Choose output folder');
+
+          T_Flatten_Bool = this.F_group.add('checkbox', undefined, 'Flatten before saving');
+          T_Flatten_Bool.value = false;
+
+          this.F_group.add('statictext', undefined, 'File format:');
+          T_Saving_Format = this.F_group.add('dropdownlist', undefined, ['jpg', 'png', 'tiff', 'psd']  );
+
+        this.S_group = this.reference.add('group {orientation: "row", alignChildren: ["left","top"]}', undefined, '');
+
+        this.T_02_group = this.S_group.add('panel {orientation: "column", alignChildren: ["left","top"]}', undefined, '');
+
+            T_Output_Describ_ = this.T_02_group.add('statictext', undefined, 'Output path:');
+
+            T_Output_Static_Text = this.T_02_group.add('statictext', undefined, '_______________________________________________________________');
 
     get_Index(this);
 
     //assign onChange callback - save
-    Type_Save( );
+    Type_Save(T_Choose_Folder);
 
 
   }
@@ -403,7 +409,7 @@ function fill_dropdowns(REFERENCE_SETS, REFERENCE_ACTIONS) {
 
 // OPEN TYPE START:
 
-function Type_Open(OPEN_BUTTON, OUTPUT_PATH_STATIC_TEXT, INPUT_PATH_STATIC_TEXT) {
+function Type_Open(OPEN_BUTTON, INPUT_PATH_STATIC_TEXT) {
   OPEN_BUTTON.onClick = function() {
     //get array of formats
 
@@ -448,18 +454,6 @@ function Type_Open(OPEN_BUTTON, OUTPUT_PATH_STATIC_TEXT, INPUT_PATH_STATIC_TEXT)
 
         // alert(inputFiles);
 
-        outputFolder = Folder.selectDialog("Output folder");
-        if (outputFolder != null) {
-
-          // alert(outputFolder);
-
-          OUTPUT_PATH_STATIC_TEXT.text = '';
-          OUTPUT_PATH_STATIC_TEXT.text = decodeURI(outputFolder.toString());
-        } else {
-          alert("No output folder selected.");
-          return;
-
-        }
       }
     }
   }
@@ -527,11 +521,34 @@ function extension_of_file_is_in_filter_array(extension, EXTENSIONS_FILTER_ARRAY
 
 //SAVE TYPE START
 
+function Type_Save(BROWSE_FILE_BUTTON) {
+  BROWSE_FILE_BUTTON.onClick = function () {
+    outputFolder = Folder.selectDialog("Output folder");
+    if (outputFolder != null) {
+
+      // alert(outputFolder);
+
+      OUTPUT_PATH_STATIC_TEXT.text = '';
+      OUTPUT_PATH_STATIC_TEXT.text = decodeURI(outputFolder.toString());
+    } else {
+      alert("No output folder selected.");
+      return;
+
+    }
+  }
+}
 
 //SAVE TYPE END
 
-function Type_Save() {
+// GENERAL FUNCTIONS
 
+function this_string_contains(string, substring)  {
+  // if (string.indexOf(substring) !== (parseInt('-1'))) {
+  if ((string.indexOf(substring) > 0) || (string.indexOf(substring) === 0)) {
+    return true;
+  } else {
+    return false;
+  }
 }
 
 /////////////////////// TYPES of constructors *********************** END
