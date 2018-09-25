@@ -23,7 +23,7 @@ populate();
 
 /////////////////////////////////// UI START ***********************
 
-var W = new Window('dialog {orientation: "row", alignChildren: ["fill","fill"], size: [1100,600]}', "Conditional action piping", undefined, {
+var W = new Window('dialog {orientation: "row", alignChildren: ["fill","fill"], size: [1200,600]}', "Conditional action piping", undefined, {
   closeButton: true
 }, {resizeable: true});
 
@@ -35,7 +35,9 @@ container.add('statictext', undefined, ' ---------------------------- Modules --
   readonly: true
 }, {justify: "center"});
 
-var Controls = W.add('panel {orientation: "column", alignChildren: ["fill","fill"]}', undefined, '');
+container.add('edittext', undefined, '');
+
+var Controls = W.add('panel {orientation: "column", alignChildren: ["fill","top"]}', undefined, '');
 
 var desc_add_sub = Controls.add('statictext', undefined, 'Controls:')
 
@@ -44,18 +46,14 @@ var scroll_down = Controls.add('button', undefined, 'Scroll down');
 
 hr(Controls);
 
-Controls.add('statictext', undefined, "Add:")
-var Control_Add_group = Controls.add('group {orientation:"row", alignChildren: ["fill","fill"]}', undefined, '')
-var add_Action_Button = Control_Add_group.add('button', undefined, 'Action module');
-var add_Opening_Button = Control_Add_group.add('button', undefined, 'Opening module');
-var add_Saving_Button = Control_Add_group.add('button', undefined, 'Saving module');
+var Control_Add_group = Controls.add('group {orientation:"row", alignChildren: ["fill","fill"]}', undefined, '');
+var add_Action_Button = Control_Add_group.add('button', undefined, 'Add action module');
+var add_Opening_Button = Control_Add_group.add('button', undefined, 'Add opening module');
+var add_Saving_Button = Control_Add_group.add('button', undefined, 'Add saving module');
 
-var subButton = Controls.add('button', undefined, '- Substract module -');
-
-hr(Controls);
-
-var move_up = Controls.add('button', undefined, 'Move module up');
-var move_down = Controls.add('button', undefined, 'Move module down');
+var Control_sub_group = Controls.add('group {orientation:"row", alignChildren: ["fill","fill"]}', undefined, '');
+var subButton = Control_sub_group.add('button', undefined, 'Remove selected module');
+var subButton_all = Control_sub_group.add('button', undefined, 'Remove all modules');
 
 hr(Controls);
 
@@ -70,8 +68,6 @@ container.onShow = function() {
 }
 
 ////////////// INTERACTIONS:
-
-var scrolling_treshold = 40;
 
 // var all_of_types_Arr = ['Action', 'Opening', 'Saving'];
 add_Action_Button.onClick = function() {
@@ -100,10 +96,10 @@ add_Saving_Button.onClick = function() {
 
 function refresh_view() {
   // move to location of added module - workaround at this moment only
-  if (container.children.length > 11) {
+  if (container.children.length > 4) {
     for (var i = 0; i < container.children.length; i++) {
       var t_sum = reCount_children_height(container);
-      container.children[i].location.y = container.children[i].location.y - t_sum - container.children.length;
+      container.children[i].location.y = container.children[i].location.y - t_sum;
     }
   }
 }
@@ -119,8 +115,30 @@ subButton.onClick = function() {
   }
   refresh_indexes();
   updateUILayout(container);
-  refresh_view();
 }
+
+subButton_all.onClick = function() {
+
+  //select all
+  if (container.children.length > 1) {
+    for (var i = 1; i < container.children.length; i++) {
+      container.children[i].children[0].children[0].value = true;
+    }
+  }
+
+  var deletion_Arr = container_selection();
+
+  if (deletion_Arr !== 0) {
+    for (var i = 0; i < deletion_Arr.length; i++) {
+      container.remove(deletion_Arr[i]);
+    }
+  }
+
+  refresh_indexes();
+  updateUILayout(container);
+}
+
+var scrolling_treshold = 40;
 
 scroll_up.onClick = function() {
   try {
@@ -136,20 +154,6 @@ scroll_down.onClick = function() {
       container.children[i].location.y = container.children[i].location.y - scrolling_treshold;
     }
   } catch (e) {}
-}
-
-move_up.onClick = function() {
-  // delete selected modules
-  var move_arr = container_selection();
-
-  if (move_arr !== 0) {
-    for (var i = 0; i < move_arr.length; i++) {
-      container.add(move_arr[i]);
-    }
-  }
-  refresh_indexes();
-  updateUILayout(container);
-  refresh_view();
 }
 
 refresh_button.onClick = function() {
