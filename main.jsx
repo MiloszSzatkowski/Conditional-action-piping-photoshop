@@ -32,10 +32,10 @@ container.minimumSize.width = 700;
 
 // intro container - width management
 container.add('statictext', undefined, ' ---------------------------- Modules ---------------------------- ', {
-  readonly: true
+  readonly: false
 }, {justify: "center"});
 
-container.add('edittext', undefined, '');
+// container.add('edittext', undefined, '');
 
 var Controls = W.add('panel {orientation: "column", alignChildren: ["fill","top"]}', undefined, '');
 
@@ -241,8 +241,8 @@ function Module(TYPE) {
       T_Checkbox = this.F_group.add('checkbox', undefined, '');
       T_Checkbox.value = false;
 
-      this.ind = this.F_group.add('statictext', undefined, '', {readonly: true});
-      this.F_group.add('statictext', undefined, 'Play action', {readonly: true});
+      this.ind = this.F_group.add('statictext', undefined, '', {readonly: false});
+      this.F_group.add('statictext', undefined, 'Play action', {readonly: false});
 
       T_Action_Set = this.F_group.add('dropdownlist', undefined, '');
       T_Action_List = this.F_group.add('dropdownlist', undefined, '');
@@ -274,7 +274,7 @@ function Module(TYPE) {
       T_Checkbox = this.F_group.add('checkbox', undefined, '');
       T_Checkbox.value = false;
 
-      this.ind = this.F_group.add('statictext', undefined, '', {readonly: true});
+      this.ind = this.F_group.add('statictext', undefined, '', {readonly: false});
       this.F_group.add('statictext', undefined, 'Open files');
 
       T_Choose_Folder = this.F_group.add('button', undefined, 'Choose input folder');
@@ -321,7 +321,7 @@ function Module(TYPE) {
         T_Checkbox = this.F_group.add('checkbox', undefined, '');
         T_Checkbox.value = false;
 
-        this.ind = this.F_group.add('statictext', undefined, '', {readonly: true});
+        this.ind = this.F_group.add('statictext', undefined, '', {readonly: false});
         this.F_group.add('statictext', undefined, 'Save files');
 
           T_Choose_Folder = this.F_group.add('button', undefined, 'Choose output folder');
