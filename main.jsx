@@ -23,15 +23,25 @@ populate();
 
 /////////////////////////////////// UI START ***********************
 
-var W = new Window('dialog {orientation: "row", alignChildren: ["fill","fill"], size: [1200,600]}', "Conditional action piping", undefined, {
+var W = new Window('dialog {orientation: "row", alignChildren: ["fill","fill"], size: [1250,600]}', "Conditional action piping", undefined, {
   closeButton: true
 }, {resizeable: true});
 
-var container = W.add('panel {orientation: "column", alignChildren: ["fill","top"]}', undefined, '');
-container.minimumSize.width = 700;
+var High_group = W.add('panel {orientation: "column", alignChildren: ["fill","top"]}', undefined, '');
+
+W.onShow = function() {
+  High_group.minimumSize.width = 900;
+  High_group.minimumSize.height = 3000;
+  container.minimumSize.width = 680;
+  container.size.height = 2800;
+  container.minimumSize.height = 2800;
+}
+
+var container = High_group.add ('panel {orientation: "column", alignChildren: ["fill","top"]}', undefined, '');
 
 // intro container - width management
-container.add('statictext', undefined, ' ---------------------------- Modules ---------------------------- ', {
+container.add('statictext', undefined,
+' -------------------------------------------------------- Modules-------------------------------------------------------- --------------------------------------------------------', {
   readonly: false
 }, {justify: "center"});
 
@@ -59,13 +69,42 @@ hr(Controls);
 
 var refresh_button = Controls.add('button', undefined, 'Refresh');
 
-////////////// UI FUNCTIONS: ************************************************************ START
+var scrollbar_group = W.add('panel {orientation:"column"}', undefined, '');
 
-////////////// ON SHOW    ***********-------------------------
+var Scrollbar_el = scrollbar_group.add('scrollbar', [undefined, undefined, 20, 550]);
 
-container.onShow = function() {
-  container.size.height = 10000;
+var Scrollbar_val = Controls.add('statictext', undefined, '_____');
+
+Scrollbar_el.onChanging  = function () {
+  // alert(  Scrollbar.value )
+  var children_height_sum = NEW_reCount_children_height() ;
+  var ratio = (Scrollbar_el.value/100) * children_height_sum;
+  // for (var i = 0; i < container.children.length; i++) {
+  //   var t_sum = reCount_children_height(container);
+  //   container.children[i].location.y = container.children[i].location.y - t_sum;
+  // }
+  if (container.children.length > 2) {
+    container.location.y = -1 * ratio;
+    container.minimumSize.height = children_height_sum + 200;
+  } else {
+    Scrollbar_el.value = 0;
+  }
+
+  Scrollbar_val.text = ratio;
+  updateUILayout(Controls);
 }
+
+
+function NEW_reCount_children_height() {
+  var accum = 0;
+  var gap = 3;
+  for (var i = 1; i < container.children.length; i++) {
+    accum = accum + container.children[i].size.height + gap;
+  }
+  return accum;
+}
+
+////////////// UI FUNCTIONS: ************************************************************ START
 
 ////////////// INTERACTIONS:
 
@@ -95,11 +134,13 @@ add_Saving_Button.onClick = function() {
 }
 
 function refresh_view() {
-  // move to location of added module - workaround at this moment only
-  if (container.children.length > 4) {
-    for (var i = 0; i < container.children.length; i++) {
-      var t_sum = reCount_children_height(container);
-      container.children[i].location.y = container.children[i].location.y - t_sum;
+  if (false) {
+    // move to location of added module - workaround at this moment only
+    if (container.children.length > 4) {
+      for (var i = 0; i < container.children.length; i++) {
+        var t_sum = reCount_children_height(container);
+        container.children[i].location.y = container.children[i].location.y - t_sum;
+      }
     }
   }
 }
@@ -157,7 +198,6 @@ scroll_down.onClick = function() {
 }
 
 refresh_button.onClick = function() {
-  refresh_indexes();
   updateUILayout(container);
 }
 
@@ -185,6 +225,7 @@ function reCount_children_height(parent_el) {
     return 0;
   }
 }
+
 
 function container_selection() {
   var at_least_one_module_selected = false;
@@ -453,8 +494,14 @@ function Type_Open(OPEN_BUTTON, INPUT_PATH_STATIC_TEXT) {
 
         inputFiles = inputFolder.getFiles();
 
+        if (OPEN_BUTTON.parent.children[1].children[5].value) {
+          cond_text = OPEN_BUTTON.parent.children[1].children[6].text;
+        } else {
+          cond_text = '';
+        }
+
         //
-        cleanList(inputFiles, T_EXTENSIONS_FILTER_ARRAY);
+        cleanList(inputFiles, T_EXTENSIONS_FILTER_ARRAY, cond_text);
 
         // alert(inputFiles);
 
@@ -463,7 +510,8 @@ function Type_Open(OPEN_BUTTON, INPUT_PATH_STATIC_TEXT) {
   }
 }
 
-function cleanList(inputFiles, EXTENSIONS_FILTER_ARRAY) {
+
+function cleanList(inputFiles, EXTENSIONS_FILTER_ARRAY, condition_string) {
   var files_to_pr = [];
 
   if (EXTENSIONS_FILTER_ARRAY.length === 0) {
@@ -474,10 +522,24 @@ function cleanList(inputFiles, EXTENSIONS_FILTER_ARRAY) {
   for (var i = 0; i < inputFiles.length; i++) {
     splitPath = inputFiles[i].toString().split(".");
     extension = splitPath[splitPath.length - 1];
-    if (extension_of_file_is_in_filter_array(extension, EXTENSIONS_FILTER_ARRAY)) {
-      files_to_pr.push(inputFiles[i]);
+    name_without_extension = '';
 
+    for (var j = 0; j < (splitPath.length - 1); j++) {
+      name_without_extension = name_without_extension + splitPath[j];
     }
+
+    if ((condition_string == '') || (condition_string == null)) {
+      if (extension_of_file_is_in_filter_array(extension, EXTENSIONS_FILTER_ARRAY)) {
+        files_to_pr.push(inputFiles[i]);
+
+      }
+    } else {
+      if (extension_of_file_is_in_filter_array(extension, EXTENSIONS_FILTER_ARRAY) && this_string_contains(name_without_extension, condition_string)) {
+        files_to_pr.push(inputFiles[i]);
+
+      }
+    }
+
   }
   if (files_to_pr != null) {
     return files_to_pr;
