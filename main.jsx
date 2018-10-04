@@ -455,19 +455,6 @@ function Type_Open(OPEN_BUTTON, INPUT_PATH_STATIC_TEXT) {
   }
 }
 
-
-
-function extension_of_file_is_in_filter_array(extension, EXTENSIONS_FILTER_ARRAY) {
-  for (var i = 0; i < EXTENSIONS_FILTER_ARRAY.length; i++) {
-    if (extension == EXTENSIONS_FILTER_ARRAY[i]) {
-      return true;
-      break;
-    }
-  }
-  // no matching extension
-  return false;
-}
-
 // OPEN TYPE END
 
 //SAVE TYPE START
@@ -709,16 +696,21 @@ function UNPACK() {
         // alert ( inputFiles )
         var inputFiles = inputFolder.getFiles();
         var inputFiles_are_valid = true;
+        // alert( 'Input files: \n' + inputFiles.toString());
       } catch (e) {
         alert ( e + ' ' + inputFiles + ' \n' + 'Input folder was not found in module nr ' + i );
       }
 
-      // alert( inputFiles_are_valid + ' ' + OPEN_BUTTON.parent.parent.children[1].children[2].text )
-
       if (inputFiles_are_valid) {
-        if (OPEN_BUTTON.parent.children[1].children[5].value) {
-          var cond_text = OPEN_BUTTON.parent.children[1].children[6].text;
+
+        // alert( 'Opening has started ')
+        // alert (self_reference.children[1].children[5].value)
+
+        if (self_reference.children[1].children[5].value) {
+          var cond_text = self_reference.children[1].children[5].text;
         } else {        cond_text = '';      }
+
+        // alert( cond_text );
 
         var _format_shortcut = OPEN_BUTTON.parent.parent.children[1];
         var _jpg = _format_shortcut.children[1];      var _tif = _format_shortcut.children[2];
@@ -731,9 +723,9 @@ function UNPACK() {
         if (_psd.value) {        T_EXTENSIONS_FILTER_ARRAY.push('psd');      }
         if (_png.value) {        T_EXTENSIONS_FILTER_ARRAY.push('png');      }
 
-        alert( T_EXTENSIONS_FILTER_ARRAY )
+        // alert( T_EXTENSIONS_FILTER_ARRAY )
 
-        var files_to_open = cleanList(inputFiles, EXTENSIONS_FILTER_ARRAY, condition_string);
+        var files_to_open = cleanList(inputFiles, T_EXTENSIONS_FILTER_ARRAY, cond_text);
         alert( files_to_open )
 
         for (var d = 0; d < files_to_open.length; d++) {
@@ -758,13 +750,18 @@ function cleanList(inputFiles, EXTENSIONS_FILTER_ARRAY, condition_string) {
   }
 
   for (var i = 0; i < inputFiles.length; i++) {
-    splitPath = inputFiles[i].toString().split(".");
-    extension = splitPath[splitPath.length - 1];
-    name_without_extension = '';
 
-    for (var j = 0; j < (splitPath.length - 1); j++) {
-      name_without_extension = name_without_extension + splitPath[j];
-    }
+
+    // splitPath = inputFiles[i].toString().split(".");
+    // extension = splitPath[splitPath.length - 1];
+    // name_without_extension = '';
+
+    var T_name_without_extension = decodeURI(inputFiles[i]).toString().replace(/\.[^\.]+$/, '').split("/");
+    var name_without_extension   = T_name_without_extension[T_name_without_extension.length - 1];
+    var extension                = decodeURI(inputFiles[i]).toString().replace(/^.*\./, '');
+
+    // alert('You"re in cleanList loop')
+    // alert(name_without_extension);
 
     if ((condition_string == '') || (condition_string == null)) {
       if (extension_of_file_is_in_filter_array(extension, EXTENSIONS_FILTER_ARRAY)) {
@@ -772,7 +769,8 @@ function cleanList(inputFiles, EXTENSIONS_FILTER_ARRAY, condition_string) {
 
       }
     } else {
-      if (extension_of_file_is_in_filter_array(extension, EXTENSIONS_FILTER_ARRAY) && this_string_contains(name_without_extension, condition_string)) {
+      if (extension_of_file_is_in_filter_array(extension, EXTENSIONS_FILTER_ARRAY)
+          && this_string_contains(name_without_extension, condition_string)) {
         files_to_pr.push(inputFiles[i]);
 
       }
@@ -808,6 +806,17 @@ function elaborate_on_extension_array(EXTENSIONS_FILTER_ARRAY) {
     alert('Function cannot elaborate on an empty extension array.')
     return;
   }
+}
+
+function extension_of_file_is_in_filter_array(extension, EXTENSIONS_FILTER_ARRAY) {
+  for (var i = 0; i < EXTENSIONS_FILTER_ARRAY.length; i++) {
+    if (extension == EXTENSIONS_FILTER_ARRAY[i]) {
+      return true;
+      break;
+    }
+  }
+  // no matching extension
+  return false;
 }
 
 function openFile(imagePath) {
