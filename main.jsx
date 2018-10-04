@@ -69,6 +69,11 @@ hr(Controls);
 
 var refresh_button = Controls.add('button', undefined, 'Refresh');
 
+var execute_Pipe_button = Controls.add ('button', undefined, 'Execute');
+execute_Pipe_button.onClick = function () {
+  UNPACK ();
+}
+
 var scrollbar_group = W.add('panel {orientation:"column"}', undefined, '');
 
 var Scrollbar_el = scrollbar_group.add('scrollbar', [undefined, undefined, 20, 550]);
@@ -146,27 +151,20 @@ function refresh_view() {
 }
 
 subButton.onClick = function() {
-  // delete selected modules
-  var deletion_Arr = container_selection();
-
-  if (deletion_Arr !== 0) {
-    for (var i = 0; i < deletion_Arr.length; i++) {
-      container.remove(deletion_Arr[i]);
-    }
-  }
-  refresh_indexes();
-  updateUILayout(container);
+  delete_selected_modules();
 }
 
 subButton_all.onClick = function() {
-
   //select all
   if (container.children.length > 1) {
     for (var i = 1; i < container.children.length; i++) {
       container.children[i].children[0].children[0].value = true;
     }
   }
+  delete_selected_modules();
+}
 
+function delete_selected_modules() {
   var deletion_Arr = container_selection();
 
   if (deletion_Arr !== 0) {
@@ -174,9 +172,9 @@ subButton_all.onClick = function() {
       container.remove(deletion_Arr[i]);
     }
   }
-
   refresh_indexes();
   updateUILayout(container);
+  compare_virtual_DOM_to_real_DOM();
 }
 
 var scrolling_treshold = 40;
@@ -299,7 +297,7 @@ function Module(TYPE) {
       T_Condition_Action_Text.minimumSize.width = 150;
       T_Condition_Action_Text.minimumSize.height = 21;
 
-    get_Index(this);
+    refresh_indexes();
 
     //assign onChange callback
     Type_Action(T_Action_Set, T_Action_List);
@@ -346,7 +344,7 @@ function Module(TYPE) {
 
           T_Input_Static_Text = this.T_01_group.add('statictext', undefined, '_______________________________________________________________');
 
-    get_Index(this);
+      refresh_indexes();
 
     //assign onChange callback ||   jpg, tif, psd, png
     Type_Open(T_Choose_Folder, T_Input_Static_Text)
@@ -381,7 +379,7 @@ function Module(TYPE) {
 
             T_Output_Static_Text = this.T_02_group.add('statictext', undefined, '_______________________________________________________________');
 
-    get_Index(this);
+    refresh_indexes();
 
     //assign onChange callback - save
     Type_Save(T_Choose_Folder);
@@ -395,24 +393,12 @@ function Module(TYPE) {
 
 /////////////////////// FUNCTIONS FOR MODULES *********************** START
 
-function get_Index(MODULE) {
-  try {
-    for (i = 0; i < container.children.length; i++) {
-      if (container.children[i] == MODULE.reference) {
-        MODULE.ind.text = i;
-        return;
-      }
-    }
-  } catch (variable) {};
-}
-
 function refresh_indexes() {
-  for (var i = 0; i < all_references.length; i++) {
-    try {
-      get_Index(all_references[i]);
-    } catch (e) {
-      all_references.splice(i, 1);
-    }
+  for (var i = 1; i < container.children.length; i++) {
+    var this_module = container.children[i];
+    var module_index_text = this_module.children[0].children[1].text;
+    // alert (module_index_text);
+    this_module.children[0].children[1].text = i;
   }
 }
 
@@ -515,7 +501,7 @@ function cleanList(inputFiles, EXTENSIONS_FILTER_ARRAY, condition_string) {
   var files_to_pr = [];
 
   if (EXTENSIONS_FILTER_ARRAY.length === 0) {
-    alert('No format was not selected.');
+    alert('No format was selected.');
     return;
   }
 
@@ -751,6 +737,44 @@ function getActions(aset) {
 ////////////// FUNCTION FOR SCANNING ACTION SETS END **********
 
 ///////////// MAIN ALGORITHMS ********** START ************
+
+// UNPACK ALL MODULES
+
+function UNPACK() {
+  var temp_Modules = [];
+  ///////////////////////////////// CHECKING SECTION
+  // CHECK if virtual DOM contains the same references as real DOM
+    var virtual_DOM_is_equal_to_real_DOM = [];
+    var local_bool = true;
+    alert( all_references.toString())
+    //- counting object to check if deletions were succesful
+    // refresh_indexes();
+    // The first index is taken by statictext "----Modules----"
+
+    if (container.children.length > 1) {
+      for (i = 1; i < container.children.length; i++) {
+        try {
+          if (container.children[i] == all_references[i-1].reference) {
+                   virtual_DOM_is_equal_to_real_DOM.push(true);
+          } else { virtual_DOM_is_equal_to_real_DOM.push(false); local_bool = false;
+          }
+        } catch (e) {
+          //critical error
+          local_bool = false;
+          alert( 'Element nr ' + i + ' is not equal to real array' + e);
+        }
+      }
+    } else {
+      alert ('There are no modules')
+      local_bool = false;
+    }
+
+    if (local_bool) {
+      alert( 'Virtual DOM is the same as real DOM' );
+    }
+  ///////////////////////////////// CHECKING SECTION END
+
+}
 
 /////////////////////////////////// *** Process Folder
 
