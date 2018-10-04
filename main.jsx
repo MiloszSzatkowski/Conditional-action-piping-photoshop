@@ -442,121 +442,20 @@ function fill_dropdowns(REFERENCE_SETS, REFERENCE_ACTIONS) {
 
 function Type_Open(OPEN_BUTTON, INPUT_PATH_STATIC_TEXT) {
   OPEN_BUTTON.onClick = function() {
-    //get array of formats
-
-    var _jpg = OPEN_BUTTON.parent.parent.children[1].children[1];
-    var _tif = OPEN_BUTTON.parent.parent.children[1].children[2];
-    var _psd = OPEN_BUTTON.parent.parent.children[1].children[3];
-    var _png = OPEN_BUTTON.parent.parent.children[1].children[4];
-    var T_EXTENSIONS_FILTER_ARRAY = [];
-
-    if (_jpg.value) {
-      T_EXTENSIONS_FILTER_ARRAY.push('jpg');
-    }
-    if (_tif.value) {
-      T_EXTENSIONS_FILTER_ARRAY.push('tif');
-    }
-    if (_psd.value) {
-      T_EXTENSIONS_FILTER_ARRAY.push('psd');
-    }
-    if (_png.value) {
-      T_EXTENSIONS_FILTER_ARRAY.push('png');
-    }
-
-    // alert('Selected formats are:' + T_EXTENSIONS_FILTER_ARRAY);
-
     if (true) {
       var inputFolder = Folder.selectDialog("Input folder");
       if (inputFolder == null) {
-        alert("No input folder selected.");
-        return;
-
+        alert("No input folder selected.");        return;
       } else {
-
-        // alert(inputFolder);
-
         INPUT_PATH_STATIC_TEXT.text = '';
         INPUT_PATH_STATIC_TEXT.text = decodeURI(inputFolder.toString());
 
-        inputFiles = inputFolder.getFiles();
-
-        if (OPEN_BUTTON.parent.children[1].children[5].value) {
-          cond_text = OPEN_BUTTON.parent.children[1].children[6].text;
-        } else {
-          cond_text = '';
-        }
-
-        //
-        cleanList(inputFiles, T_EXTENSIONS_FILTER_ARRAY, cond_text);
-
-        // alert(inputFiles);
-
       }
     }
   }
 }
 
 
-function cleanList(inputFiles, EXTENSIONS_FILTER_ARRAY, condition_string) {
-  var files_to_pr = [];
-
-  if (EXTENSIONS_FILTER_ARRAY.length === 0) {
-    alert('No format was selected.');
-    return;
-  }
-
-  for (var i = 0; i < inputFiles.length; i++) {
-    splitPath = inputFiles[i].toString().split(".");
-    extension = splitPath[splitPath.length - 1];
-    name_without_extension = '';
-
-    for (var j = 0; j < (splitPath.length - 1); j++) {
-      name_without_extension = name_without_extension + splitPath[j];
-    }
-
-    if ((condition_string == '') || (condition_string == null)) {
-      if (extension_of_file_is_in_filter_array(extension, EXTENSIONS_FILTER_ARRAY)) {
-        files_to_pr.push(inputFiles[i]);
-
-      }
-    } else {
-      if (extension_of_file_is_in_filter_array(extension, EXTENSIONS_FILTER_ARRAY) && this_string_contains(name_without_extension, condition_string)) {
-        files_to_pr.push(inputFiles[i]);
-
-      }
-    }
-
-  }
-  if (files_to_pr != null) {
-    return files_to_pr;
-  } else {
-    alert('No files met provided conditions.');
-  }
-}
-
-function elaborate_on_extension_array(EXTENSIONS_FILTER_ARRAY) {
-  //this function helps to pick up files with various similar extensions, that would be normally omitted
-  if (EXTENSIONS_FILTER_ARRAY.length !== 0) {
-    for (var i = 0; i < EXTENSIONS_FILTER_ARRAY.length; i++) {
-      // lower case every extension
-      EXTENSIONS_FILTER_ARRAY[i] = EXTENSIONS_FILTER_ARRAY[i].toLowerCase();
-      if (EXTENSIONS_FILTER_ARRAY[i] == 'jpg') {
-        EXTENSIONS_FILTER_ARRAY.push('jpeg');
-      }
-      if (EXTENSIONS_FILTER_ARRAY[i] == 'tif') {
-        EXTENSIONS_FILTER_ARRAY.push('tiff');
-      }
-    }
-    // add uppercase copies of every extension
-    for (var j = 0; j < EXTENSIONS_FILTER_ARRAY.length; j++) {
-      EXTENSIONS_FILTER_ARRAY.push(EXTENSIONS_FILTER_ARRAY[j].toUpperCase());
-    }
-    return EXTENSIONS_FILTER_ARRAY;
-  } else {
-    alert('Function cannot elaborate on an empty extension array.')
-    return;
-  }
-}
 
 function extension_of_file_is_in_filter_array(extension, EXTENSIONS_FILTER_ARRAY) {
   for (var i = 0; i < EXTENSIONS_FILTER_ARRAY.length; i++) {
@@ -753,36 +652,166 @@ function UNPACK() {
     var type_of_module = self_reference.children[0].children[2].text;
 
     if        (type_of_module === 'Play action') {
-      alert(type_of_module)
 
       if (app.documents.length === 0) {
         alert ( 'You cannot play action in a module nr ' + i + ' without a document' );
         return;
       }
 
-      var action_set_text = self_reference.children[0].children[3].selection;
-      var action_text = self_reference.children[0].children[4].selection;
-      alert('Action set is ' + action_set_text + ' and action to be played is called: ' + action_text);
+      var action_set_text = self_reference.children[0].children[3].selection.text;
+      var action_text = self_reference.children[0].children[4].selection.text;
+      // alert('Action set is ' + action_set_text + ' and action to be played is called: ' + action_text);
 
       if        (action_set_text == null) {
-
-      } else if (action_text == null ) {
-
+        alert ( 'Action set in a module nr ' + i + ' is not specified' );
+        return;
+      } else if (action_text     == null ) {
+        alert ( 'Action in a module nr ' + i + ' is not specified' );
+        return;
       }
 
-      for (var i = 0; i < app.documents.length; i++) {
-        app.documents[i] = app.activeDocument;
-        // app.doAction("action_text","action_set_text");
+      var apply_condition = self_reference.children[1].children[0].value;
+      var condition_text  = self_reference.children[1].children[1].text;
+      if (app.documents.length === 1) {
+        //Filename condition
+        var NAME = app.activeDocument.name.replace(/\.[^\.]+$/, '');
+        if (apply_condition) {
+          if (this_string_contains(NAME, condition_text)) {
+            app.doAction(action_text , action_set_text);
+          }
+        } else {
+          app.doAction(action_text , action_set_text);
+        }
+      } else (app.documents.length > 1) {
+        for (var j = 0; j < app.documents.length; j++) {
+          app.activeDocument = app.documents[j];
+          //Filename condition
+          var NAME = app.activeDocument.name.replace(/\.[^\.]+$/, '');
+          if (apply_condition) {
+            if (this_string_contains(NAME, condition_text)) {
+              app.doAction(action_text , action_set_text);
+            }
+          } else {
+            app.doAction(action_text , action_set_text);
+          }
+        }
       }
+
 
     } else if (type_of_module === 'Open files') {
-      alert(type_of_module)
+      // alert(type_of_module)
+
+      var OPEN_BUTTON = self_reference.children[0].children[3];
+      //get array of formats
+      var inputFolder = new Folder (self_reference.children[2].children[0].children[1].text);
+
+      try {
+        // alert ( inputFiles )
+        var inputFiles = inputFolder.getFiles();
+        var inputFiles_are_valid = true;
+      } catch (e) {
+        alert ( e + ' ' + inputFiles + ' \n' + 'Input folder was not found in module nr ' + i );
+      }
+
+      // alert( inputFiles_are_valid + ' ' + OPEN_BUTTON.parent.parent.children[1].children[2].text )
+
+      if (inputFiles_are_valid) {
+        if (OPEN_BUTTON.parent.children[1].children[5].value) {
+          var cond_text = OPEN_BUTTON.parent.children[1].children[6].text;
+        } else {        cond_text = '';      }
+
+        var _format_shortcut = OPEN_BUTTON.parent.parent.children[1];
+        var _jpg = _format_shortcut.children[1];      var _tif = _format_shortcut.children[2];
+        var _psd = _format_shortcut.children[3];      var _png = _format_shortcut.children[4];
+
+        var T_EXTENSIONS_FILTER_ARRAY = [];
+
+        if (_jpg.value) {        T_EXTENSIONS_FILTER_ARRAY.push('jpg');      }
+        if (_tif.value) {        T_EXTENSIONS_FILTER_ARRAY.push('tif');      }
+        if (_psd.value) {        T_EXTENSIONS_FILTER_ARRAY.push('psd');      }
+        if (_png.value) {        T_EXTENSIONS_FILTER_ARRAY.push('png');      }
+
+        alert( T_EXTENSIONS_FILTER_ARRAY )
+
+        var files_to_open = cleanList(inputFiles, EXTENSIONS_FILTER_ARRAY, condition_string);
+        alert( files_to_open )
+
+        for (var d = 0; d < files_to_open.length; d++) {
+          openFile(files_to_open[d]);
+        }
+
+      }
 
     } else if (type_of_module === 'Save files') {
       alert(type_of_module)
     }
   }
 
+}
+
+function cleanList(inputFiles, EXTENSIONS_FILTER_ARRAY, condition_string) {
+  var files_to_pr = [];
+
+  if (EXTENSIONS_FILTER_ARRAY.length === 0) {
+    alert('No format was selected.');
+    return;
+  }
+
+  for (var i = 0; i < inputFiles.length; i++) {
+    splitPath = inputFiles[i].toString().split(".");
+    extension = splitPath[splitPath.length - 1];
+    name_without_extension = '';
+
+    for (var j = 0; j < (splitPath.length - 1); j++) {
+      name_without_extension = name_without_extension + splitPath[j];
+    }
+
+    if ((condition_string == '') || (condition_string == null)) {
+      if (extension_of_file_is_in_filter_array(extension, EXTENSIONS_FILTER_ARRAY)) {
+        files_to_pr.push(inputFiles[i]);
+
+      }
+    } else {
+      if (extension_of_file_is_in_filter_array(extension, EXTENSIONS_FILTER_ARRAY) && this_string_contains(name_without_extension, condition_string)) {
+        files_to_pr.push(inputFiles[i]);
+
+      }
+    }
+
+  }
+  if (files_to_pr != null) {
+    return files_to_pr;
+  } else {
+    alert('No files met provided conditions.');
+  }
+}
+
+function elaborate_on_extension_array(EXTENSIONS_FILTER_ARRAY) {
+  //this function helps to pick up files with various similar extensions, that would be normally omitted
+  if (EXTENSIONS_FILTER_ARRAY.length !== 0) {
+    for (var i = 0; i < EXTENSIONS_FILTER_ARRAY.length; i++) {
+      // lower case every extension
+      EXTENSIONS_FILTER_ARRAY[i] = EXTENSIONS_FILTER_ARRAY[i].toLowerCase();
+      if (EXTENSIONS_FILTER_ARRAY[i] == 'jpg') {
+        EXTENSIONS_FILTER_ARRAY.push('jpeg');
+      }
+      if (EXTENSIONS_FILTER_ARRAY[i] == 'tif') {
+        EXTENSIONS_FILTER_ARRAY.push('tiff');
+      }
+    }
+    // add uppercase copies of every extension
+    for (var j = 0; j < EXTENSIONS_FILTER_ARRAY.length; j++) {
+      EXTENSIONS_FILTER_ARRAY.push(EXTENSIONS_FILTER_ARRAY[j].toUpperCase());
+    }
+    return EXTENSIONS_FILTER_ARRAY;
+  } else {
+    alert('Function cannot elaborate on an empty extension array.')
+    return;
+  }
+}
+
+function openFile(imagePath) {
+app.open(File(imagePath));
 }
 
 /////////////////////////////////// *** Process Folder
