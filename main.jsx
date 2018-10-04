@@ -741,38 +741,47 @@ function getActions(aset) {
 // UNPACK ALL MODULES
 
 function UNPACK() {
-  var temp_Modules = [];
   ///////////////////////////////// CHECKING SECTION
-  // CHECK if virtual DOM contains the same references as real DOM
-    var virtual_DOM_is_equal_to_real_DOM = [];
-    var local_bool = true;
-    alert( all_references.toString())
-    //- counting object to check if deletions were succesful
-    // refresh_indexes();
-    // The first index is taken by statictext "----Modules----"
 
-    if (container.children.length > 1) {
-      for (i = 1; i < container.children.length; i++) {
-        try {
-          if (container.children[i] == all_references[i-1].reference) {
-                   virtual_DOM_is_equal_to_real_DOM.push(true);
-          } else { virtual_DOM_is_equal_to_real_DOM.push(false); local_bool = false;
-          }
-        } catch (e) {
-          //critical error
-          local_bool = false;
-          alert( 'Element nr ' + i + ' is not equal to real array' + e);
-        }
-      }
-    } else {
-      alert ('There are no modules')
-      local_bool = false;
-    }
-
-    if (local_bool) {
-      alert( 'Virtual DOM is the same as real DOM' );
-    }
   ///////////////////////////////// CHECKING SECTION END
+
+  //////////////////////////////// * SERIALIZE PIPE
+  // alert(container.children[1].children[0].children[2].text)
+
+  for (var i = 1; i < container.children.length; i++) {
+    var self_reference = container.children[i];
+    var type_of_module = self_reference.children[0].children[2].text;
+
+    if        (type_of_module === 'Play action') {
+      alert(type_of_module)
+
+      if (app.documents.length === 0) {
+        alert ( 'You cannot play action in a module nr ' + i + ' without a document' );
+        return;
+      }
+
+      var action_set_text = self_reference.children[0].children[3].selection;
+      var action_text = self_reference.children[0].children[4].selection;
+      alert('Action set is ' + action_set_text + ' and action to be played is called: ' + action_text);
+
+      if        (action_set_text == null) {
+
+      } else if (action_text == null ) {
+
+      }
+
+      for (var i = 0; i < app.documents.length; i++) {
+        app.documents[i] = app.activeDocument;
+        // app.doAction("action_text","action_set_text");
+      }
+
+    } else if (type_of_module === 'Open files') {
+      alert(type_of_module)
+
+    } else if (type_of_module === 'Save files') {
+      alert(type_of_module)
+    }
+  }
 
 }
 
