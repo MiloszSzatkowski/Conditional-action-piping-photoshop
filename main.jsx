@@ -74,41 +74,6 @@ execute_Pipe_button.onClick = function () {
   UNPACK ();
 }
 
-var scrollbar_group = W.add('panel {orientation:"column"}', undefined, '');
-
-var Scrollbar_el = scrollbar_group.add('scrollbar', [undefined, undefined, 20, 550]);
-
-var Scrollbar_val = Controls.add('statictext', undefined, '_____');
-
-Scrollbar_el.onChanging  = function () {
-  // alert(  Scrollbar.value )
-  var children_height_sum = NEW_reCount_children_height() ;
-  var ratio = (Scrollbar_el.value/100) * children_height_sum;
-  // for (var i = 0; i < container.children.length; i++) {
-  //   var t_sum = reCount_children_height(container);
-  //   container.children[i].location.y = container.children[i].location.y - t_sum;
-  // }
-  if (container.children.length > 2) {
-    container.location.y = -1 * ratio;
-    container.minimumSize.height = children_height_sum + 200;
-  } else {
-    Scrollbar_el.value = 0;
-  }
-
-  Scrollbar_val.text = ratio;
-  updateUILayout(Controls);
-}
-
-
-function NEW_reCount_children_height() {
-  var accum = 0;
-  var gap = 3;
-  for (var i = 1; i < container.children.length; i++) {
-    accum = accum + container.children[i].size.height + gap;
-  }
-  return accum;
-}
-
 ////////////// UI FUNCTIONS: ************************************************************ START
 
 ////////////// INTERACTIONS:
@@ -139,11 +104,11 @@ add_Saving_Button.onClick = function() {
 }
 
 function refresh_view() {
-  if (false) {
+  if (true) {
     // move to location of added module - workaround at this moment only
     if (container.children.length > 4) {
       for (var i = 0; i < container.children.length; i++) {
-        var t_sum = reCount_children_height(container);
+        var t_sum = reCount_children_height(-19);
         container.children[i].location.y = container.children[i].location.y - t_sum;
       }
     }
@@ -174,7 +139,6 @@ function delete_selected_modules() {
   }
   refresh_indexes();
   updateUILayout(container);
-  compare_virtual_DOM_to_real_DOM();
 }
 
 var scrolling_treshold = 40;
@@ -215,13 +179,12 @@ function updateUILayout(thing) {
   thing.layout.layout(true); //Update the layout
 }
 
-function reCount_children_height(parent_el) {
-  try {
-    var children_bounds = parseFloat(parent_el.children[1].size.height) * (parent_el.children.length - 1);
-    return children_bounds;
-  } catch (e) {
-    return 0;
+function reCount_children_height(gap) {
+  var accum = 0;
+  for (var i = 1; i < container.children.length; i++) {
+    accum = accum + container.children[i].size.height + gap;
   }
+  return accum;
 }
 
 
@@ -292,10 +255,28 @@ function Module(TYPE) {
 
     this.S_group = this.reference.add('group {orientation: "row", alignChildren: ["left","top"]}', undefined, '');
 
-      T_Bool_Condition_Action = this.S_group.add('checkbox', undefined, 'Filename condition:');
-      T_Condition_Action_Text = this.S_group.add('edittext', undefined, '');
+      T_Bool_Condition_Action = this.S_group.add('checkbox', undefined, 'Apply condition');
+      var T_Condition_Action_Text = this.S_group.add('statictext', undefined, '');
       T_Condition_Action_Text.minimumSize.width = 150;
-      T_Condition_Action_Text.minimumSize.height = 21;
+
+      T_Bool_Condition_Action.onClick = function  ()  {
+        if (this.value) {
+          var catch_condition = prompt('Type in a text to be used as a condition. \nIf a file contains this string, the action will be played.','');
+          if ((catch_condition == null) || (catch_condition == undefined) || ( catch_condition == '')) {
+            this.value = false;
+            this.text ='Apply condition';
+            this.parent.children[1].text = '';
+          } else {
+            this.value = true;
+            this.text ='Apply condition :';
+            this.parent.children[1].text = catch_condition;
+          }
+        } else {
+          this.parent.children[1].text = '';
+          this.value = false;
+          this.text ='Apply condition';
+        }
+      }
 
     refresh_indexes();
 
@@ -331,10 +312,28 @@ function Module(TYPE) {
       T_psd.value = true;
       T_png.value = true;
 
-      T_Bool_Condition_Action = this.S_group.add('checkbox', undefined, 'Filename condition:');
-      T_Condition_Action_Text = this.S_group.add('edittext', undefined, '');
+      T_Bool_Condition_Action = this.S_group.add('checkbox', undefined, 'Apply condition');
+      var T_Condition_Action_Text = this.S_group.add('statictext', undefined, '');
       T_Condition_Action_Text.minimumSize.width = 150;
-      T_Condition_Action_Text.minimumSize.height = 21;
+
+      T_Bool_Condition_Action.onClick = function  ()  {
+        if (this.value) {
+          var catch_condition = prompt('Type in a text to be used as a condition. \nIf a file contains this string, the action will be played.','');
+          if ((catch_condition == null) || (catch_condition == undefined) || ( catch_condition == '')) {
+            this.value = false;
+            this.text ='Apply condition';
+            this.parent.children[6].text = '';
+          } else {
+            this.value = true;
+            this.text ='Apply condition:';
+            this.parent.children[6].text = catch_condition;
+          }
+        } else {
+          this.parent.children[6].text = '';
+          this.value = false;
+          this.text ='Apply condition';
+        }
+      }
 
     this.T_group = this.reference.add('group {orientation: "column", alignChildren: ["left","top"]}', undefined, '');
 
@@ -370,6 +369,7 @@ function Module(TYPE) {
 
           this.F_group.add('statictext', undefined, 'File format:');
           T_Saving_Format = this.F_group.add('dropdownlist', undefined, ['jpg', 'png', 'tiff', 'psd']  );
+          T_Saving_Format.selection = 3;
 
         this.S_group = this.reference.add('group {orientation: "row", alignChildren: ["left","top"]}', undefined, '');
 
@@ -378,6 +378,89 @@ function Module(TYPE) {
             T_Output_Describ_ = this.T_02_group.add('statictext', undefined, 'Output path:');
 
             T_Output_Static_Text = this.T_02_group.add('statictext', undefined, '_______________________________________________________________');
+
+
+        this.L_group = this.reference.add('group {orientation: "row", alignChildren: ["left","top"]}', undefined, '');
+
+        T_Bool_Condition_Action = this.L_group.add('checkbox', undefined, 'Filename operations');
+        T_Bool_Condition_Action.minimumSize.width = 150;
+
+        var Prefix_T = this.L_group.add('statictext', undefined, 'Prefix:');
+        var Prefix = this.L_group.add('statictext', undefined, '');
+        Prefix.minimumSize.width = 60;
+
+        var Replace_T = this.L_group.add('statictext', undefined, 'Text to be replaced:');
+        var Replace = this.L_group.add('statictext', undefined, '');
+        Replace.minimumSize.width = 60;
+
+        var Replace_With_T = this.L_group.add('statictext', undefined, 'Replace with:');
+        var Replace_With = this.L_group.add('statictext', undefined, '');
+        Replace_With.minimumSize.width = 60;
+
+        var Suffix_T = this.L_group.add('statictext', undefined, 'Suffix:');
+        var Suffix = this.L_group.add('statictext', undefined, '');
+        Suffix.minimumSize.width = 60;
+
+        T_Bool_Condition_Action.onClick = function  ()  {
+          var PARENT_OF_THIS_BUTTON = this.parent;
+          if (this.value) {
+            var T_W = new Window('dialog {orientation: "column", alignChildren: ["fill","fill"]}', "Change name of a saved file", undefined, {
+              closeButton: true  }, {resizeable: true});
+
+              var edit_Prefix_T = T_W.add('statictext', undefined, 'Prefix')
+              var edit_Prefix   = T_W.add('edittext', undefined, '');
+              edit_Prefix.text = this.parent.children[2].text;
+
+              var edit_Replace_T = T_W.add('statictext', undefined, 'Replace')
+              var edit_Replace   = T_W.add('edittext', undefined, '');
+              edit_Replace.text = this.parent.children[4].text;
+
+              var replace_all = T_W.add('checkbox', undefined, 'Replace all');
+              replace_all.onClick = function () {
+                if (this.value) {
+                  edit_Replace.text = '';
+                  edit_Replace.text = '*all*';
+                } else {
+                  edit_Replace.text = '';
+                  this.value = false;
+                }
+              }
+
+              var edit_Replace_With_T = T_W.add('statictext', undefined, 'Replace with')
+              var edit_Replace_With   = T_W.add('edittext', undefined, '');
+              edit_Replace_With.text = this.parent.children[6].text;
+
+              var edit_Suffix_T = T_W.add('statictext', undefined, 'Suffix')
+              var edit_Suffix   = T_W.add('edittext', undefined, '');
+              edit_Suffix.text = this.parent.children[8].text;
+
+              var desc = T_W.add ('statictext', undefined, "Tip: If you want to put an index of a file in a specific place, simply write '#index'")
+
+              var ok_button = T_W.add('button', undefined, 'Apply');
+              ok_button.onClick = function () {
+                PARENT_OF_THIS_BUTTON.children[2].text = edit_Prefix.text ;
+                PARENT_OF_THIS_BUTTON.children[4].text = edit_Replace.text ;
+                if (edit_Replace.text == '') {
+                  edit_Replace_With.text = '';
+                }
+                PARENT_OF_THIS_BUTTON.children[6].text = edit_Replace_With.text ;
+                PARENT_OF_THIS_BUTTON.children[8].text = edit_Suffix.text ;
+                T_W.close();
+              }
+
+              var cancel_button = T_W.add('button', undefined, 'Cancel');
+              cancel_button.onClick = function () {
+                T_W.close();
+              }
+
+            T_W.show();
+          } else {
+            this.value = false;
+            PARENT_OF_THIS_BUTTON.children[2].text = '' ;
+            PARENT_OF_THIS_BUTTON.children[4].text = '' ;
+            PARENT_OF_THIS_BUTTON.children[6].text = '' ;
+          }
+        }
 
     refresh_indexes();
 
@@ -464,7 +547,8 @@ function Type_Save(BROWSE_FILE_BUTTON) {
     outputFolder = Folder.selectDialog("Output folder");
     if (outputFolder != null) {
 
-      // alert(outputFolder);
+      OUTPUT_PATH_STATIC_TEXT = BROWSE_FILE_BUTTON.parent.parent.children[1].children[0].children[1];
+      // alert (OUTPUT_PATH_STATIC_TEXT)
 
       OUTPUT_PATH_STATIC_TEXT.text = '';
       OUTPUT_PATH_STATIC_TEXT.text = decodeURI(outputFolder.toString());
@@ -707,7 +791,7 @@ function UNPACK() {
         // alert (self_reference.children[1].children[5].value)
 
         if (self_reference.children[1].children[5].value) {
-          var cond_text = self_reference.children[1].children[5].text;
+          var cond_text = self_reference.children[1].children[6].text;
         } else {        cond_text = '';      }
 
         // alert( cond_text );
@@ -726,7 +810,7 @@ function UNPACK() {
         // alert( T_EXTENSIONS_FILTER_ARRAY )
 
         var files_to_open = cleanList(inputFiles, T_EXTENSIONS_FILTER_ARRAY, cond_text);
-        alert( files_to_open )
+        // alert( files_to_open )
 
         for (var d = 0; d < files_to_open.length; d++) {
           openFile(files_to_open[d]);
@@ -736,6 +820,7 @@ function UNPACK() {
 
     } else if (type_of_module === 'Save files') {
       alert(type_of_module)
+
     }
   }
 
@@ -750,11 +835,6 @@ function cleanList(inputFiles, EXTENSIONS_FILTER_ARRAY, condition_string) {
   }
 
   for (var i = 0; i < inputFiles.length; i++) {
-
-
-    // splitPath = inputFiles[i].toString().split(".");
-    // extension = splitPath[splitPath.length - 1];
-    // name_without_extension = '';
 
     var T_name_without_extension = decodeURI(inputFiles[i]).toString().replace(/\.[^\.]+$/, '').split("/");
     var name_without_extension   = T_name_without_extension[T_name_without_extension.length - 1];
