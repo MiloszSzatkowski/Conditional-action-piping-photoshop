@@ -318,7 +318,7 @@ function Module(TYPE) {
 
       T_Bool_Condition_Action.onClick = function  ()  {
         if (this.value) {
-          var catch_condition = prompt('Type in a text to be used as a condition. \nIf a file contains this string, the action will be played.','');
+          var catch_condition = prompt('Type in a text to be used as a condition. \nIf a file contains this string, the file will be opened.','');
           if ((catch_condition == null) || (catch_condition == undefined) || ( catch_condition == '')) {
             this.value = false;
             this.text ='Apply condition';
@@ -821,6 +821,8 @@ function UNPACK() {
     } else if (type_of_module === 'Save files') {
       alert(type_of_module)
 
+
+
     }
   }
 
@@ -901,6 +903,46 @@ function extension_of_file_is_in_filter_array(extension, EXTENSIONS_FILTER_ARRAY
 
 function openFile(imagePath) {
 app.open(File(imagePath));
+}
+
+function saveFile( extension, saveFile ) {
+
+  if        (extension == 'psd') {
+
+         var psdSaveOptions = new PhotoshopSaveOptions();
+         psdSaveOptions.embedColorProfile = true;
+         psdSaveOptions.alphaChannels = true;
+         app.activeDocument.saveAs(saveFile, psdSaveOptions, true, Extension.LOWERCASE);
+
+  } else if (extension == 'jpg') {
+
+        var jpegQuality = 12;
+        var jpgSaveOptions = new JPEGSaveOptions();
+        jpgSaveOptions.embedColorProfile = true;
+        jpgSaveOptions.formatOptions = FormatOptions.STANDARDBASELINE;
+        jpgSaveOptions.matte = MatteType.NONE;
+        jpgSaveOptions.quality = jpegQuality;
+        app.activeDocument.saveAs(saveFile, jpgSaveOptions, true, Extension.LOWERCASE);
+
+  } else if (extension == 'tif')  {
+
+        var tiffSaveOptions = new TiffSaveOptions();
+        tiffSaveOptions.embedColorProfile = true;
+        tiffSaveOptions.alphaChannels = true;
+        tiffSaveOptions.layers = true;
+        tiffSaveOptions.imageCompression = TIFFEncoding.TIFFLZW;
+        app.activeDocument.saveAs(saveFile, tiffSaveOptions, true, Extension.LOWERCASE);
+
+  } else if (extension == 'png')  {
+
+        var pngSaveOptions = new PNGSaveOptions;
+        //from 0 to 9
+        pngOpts.compression = 9;
+        pngOpts.interlaced = false;
+        activeDocument.saveAs(saveFile, pngSaveOptions, true, Extension.LOWERCASE);
+
+  }
+
 }
 
 /////////////////////////////////// *** Process Folder
