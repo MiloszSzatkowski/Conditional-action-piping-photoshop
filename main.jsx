@@ -815,6 +815,7 @@ function UNPACK() {
     } else if (type_of_module === 'Open files') {
       // alert(type_of_module)
 
+
       var OPEN_BUTTON = self_reference.children[0].children[3];
       //get array of formats
       var inputFolder = new Folder (self_reference.children[2].children[0].children[1].text);
@@ -864,6 +865,11 @@ function UNPACK() {
     } else if (type_of_module === 'Save files') {
       // alert(type_of_module)
 
+            if (app.documents.length === 0 ) {
+                alert('No open files to save at module nr ' + i);
+                return;
+            }
+
       var NAME;
       var PATH;
 
@@ -912,7 +918,13 @@ function UNPACK() {
 
         app.activeDocument = app.documents[p];
         try {
-          saveFile (PATH, extension);
+
+          if (self_reference.children[0].children[4].value) {
+            // alert (self_reference.children[0].children[4].value);
+            app.activeDocument.flatten();
+          }
+
+          // saveFile (PATH, extension);
         } catch (e) {
           alert ( e + ' ' + outputFolder + ' ' + extension  + ' \n' + 'Output folder was not found in module nr ' + i );
         }
@@ -1059,7 +1071,6 @@ function actionExists( setName , actionName){
    }catch(e){}
    return res;
 }
-
 
 
 /////////////////////////////////// *** Process Folder
