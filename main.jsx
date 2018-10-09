@@ -383,7 +383,7 @@ function Module(TYPE) {
         this.L_group = this.reference.add('group {orientation: "row", alignChildren: ["left","top"]}', undefined, '');
 
         T_Bool_Condition_Action = this.L_group.add('checkbox', undefined, 'Filename operations');
-        T_Bool_Condition_Action.minimumSize.width = 150;
+        T_Bool_Condition_Action.minimumSize.width = 130;
 
         var Prefix_T = this.L_group.add('statictext', undefined, 'Prefix:');
         var Prefix = this.L_group.add('statictext', undefined, '');
@@ -456,9 +456,7 @@ function Module(TYPE) {
             T_W.show();
           } else {
             this.value = false;
-            PARENT_OF_THIS_BUTTON.children[2].text = '' ;
-            PARENT_OF_THIS_BUTTON.children[4].text = '' ;
-            PARENT_OF_THIS_BUTTON.children[6].text = '' ;
+
           }
         }
 
@@ -819,12 +817,68 @@ function UNPACK() {
       }
 
     } else if (type_of_module === 'Save files') {
-      alert(type_of_module)
+      // alert(type_of_module)
+
+      var NAME;
+      var PATH;
+
+      var outputFolder = new Folder (self_reference.children[1].children[0].children[1].text);
+      var extension = self_reference.children[0].children[6].selection.text;
 
 
+      for (var p = 0; p < app.documents.length; p++) {
+
+        var NAME = app.activeDocument.name.replace(/\.[^\.]+$/, '');
+
+        //renaming
+        if (self_reference.children[2].children[0].value) {
+
+          var prefix =       self_reference.children[2].children[2].text;
+
+          var replace_text = self_reference.children[2].children[4].text;
+
+          var replace_with = self_reference.children[2].children[6].text;
+
+          var sufix =        self_reference.children[2].children[8].text;
+
+          // alert( prefix + '\n'  + replace_text + '\n'  + replace_with + '\n'  + sufix + '\n'  );
+
+          if (replace_text !== '') {
+            if (this_string_contains(  replace_text, '*all*') ) {
+              NAME = NAME.replace( NAME, replace_with );
+            } else {
+              NAME = NAME.replace( replace_text, replace_with );
+            }
+          }
+
+          NAME = prefix + NAME + sufix;
+
+          //check for index injection
+          if (this_string_contains (NAME, '#index')) {
+            NAME = NAME.replace ('#index', p );
+          }
+
+          // alert( NAME );
+
+        }
+
+        var PATH = new Folder (outputFolder + '/' + NAME + '.' + extension) ;
+        // alert (PATH);
+
+        app.activeDocument = app.documents[p];
+        try {
+          saveFile (PATH, extension);
+        } catch (e) {
+          alert ( e + ' ' + outputFolder + ' ' + extension  + ' \n' + 'Output folder was not found in module nr ' + i );
+        }
+
+      }
 
     }
+
   }
+
+  alert( 'Execution finished' );
 
 }
 
@@ -905,7 +959,7 @@ function openFile(imagePath) {
 app.open(File(imagePath));
 }
 
-function saveFile( extension, saveFile ) {
+function saveFile( saveFile, extension ) {
 
   if        (extension == 'psd') {
 
@@ -924,7 +978,7 @@ function saveFile( extension, saveFile ) {
         jpgSaveOptions.quality = jpegQuality;
         app.activeDocument.saveAs(saveFile, jpgSaveOptions, true, Extension.LOWERCASE);
 
-  } else if (extension == 'tif')  {
+  } else if (extension == 'tiff')  {
 
         var tiffSaveOptions = new TiffSaveOptions();
         tiffSaveOptions.embedColorProfile = true;
@@ -935,15 +989,33 @@ function saveFile( extension, saveFile ) {
 
   } else if (extension == 'png')  {
 
-        var pngSaveOptions = new PNGSaveOptions;
+        var pngSaveOptions = new PNGSaveOptions ();
         //from 0 to 9
-        pngOpts.compression = 9;
-        pngOpts.interlaced = false;
+        pngSaveOptions.compression = 9;
+        pngSaveOptions.interlaced = false;
         activeDocument.saveAs(saveFile, pngSaveOptions, true, Extension.LOWERCASE);
 
   }
 
 }
+
+//check if actions exists
+function actionExists( setName , actionName){
+
+   var res = false;
+
+   try{
+      var ref = new ActionReference();
+      ref.putName( charIDToTypeID( 'Actn' ), actionName );
+      ref.putName( charIDToTypeID( "ASet" ), setName );
+      executeActionGet( ref );
+      res = true;
+
+   }catch(e){}
+   return res;
+}
+
+
 
 /////////////////////////////////// *** Process Folder
 
