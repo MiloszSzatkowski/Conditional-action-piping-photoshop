@@ -254,11 +254,88 @@ function container_selection() {
   }
 }
 
-function saveModule() {
-  // save modules to stringified array
+//////////////// UI FUNCTIONS: ************************************************************ END
+
+function saveTxt(txt) {
+  var FILE = new File((new File($.fileName)).parent + "/" + "Pipes.csv");
+
+  FILE.encoding = "UTF8";
+
+  FILE.open('r');
+  var current_content = "";
+  while(!FILE.eof)
+  current_content += FILE.read(); //not readln - important
+  FILE.close();
+
+  FILE.open("e", "TEXT");
+  var content_to_save = current_content + txt;
+  FILE.writeln(content_to_save);
+  FILE.close();
 }
 
-//////////////// UI FUNCTIONS: ************************************************************ END
+hr(Controls);
+
+var Save_Current_Modules_butt = Controls.add('button', undefined, 'Save current modules');
+
+///////////////////////// SAVE AND LOAD MODULES FROM FILE
+
+Save_Current_Modules_butt.onClick = function () {  saveModule();  }
+
+function saveModule() {
+
+  if (container.children.length > 1) {
+
+    if () {
+
+    }
+    // save modules to stringified array
+
+    for (var i = 1; i < container.children.length; i++) {
+
+      var TYPE = container.children[i].children[0].children[2].text;
+      var MODULE = container.children[i];
+      var string_to_save = SERIALIZE_current_module(MODULE , TYPE, true);
+
+      try {
+        saveTxt( string_to_save );
+      } catch (e) {
+        alert  (e)
+      }
+
+    }
+  } else {
+    alert ('No modules to save.');
+    return;
+  }
+
+}
+
+function SERIALIZE_current_module(MODULE, TYPE, ALL) {
+  var CONCAT = '';
+
+  if        (TYPE == 'Play action') {
+
+    var SET_NAME    =  MODULE.children[0].children[3].selection.text;
+    var ACTION_NAME =  MODULE.children[0].children[4].selection.text;
+    var COND_BOOL =    MODULE.children[1].children[0].value;
+    var CONTENT_BOOL = MODULE.children[1].children[1].text;
+    CONCAT = '*start*' + '\n' + TYPE + '\n' + SET_NAME + '\n' + ACTION_NAME + '\n' + COND_BOOL + '\n' + CONTENT_BOOL + '\n' + '*end*';
+
+    //wrap in inside
+    if (ALL) {
+
+      // CONCAT = 
+
+    }
+
+    return CONCAT;
+
+  } else if (TYPE == 'Open files') {
+
+  } else if (TYPE == 'Save files') {
+
+  }
+}
 
 ////////////// set initial index of dropdowns:
 
@@ -618,23 +695,7 @@ function this_string_contains(string, substring)  {
 
 /////////////////////// TYPES of constructors *********************** END
 
-function saveTxt(txt) {
-  var Name = app.activeDocument.name.replace(/\.[^\.]+$/, '');
-  var Ext = decodeURI(app.activeDocument.name).replace(/^.*\./, '');
-  if (Ext.toLowerCase() != 'psd')
-    return;
 
-  var Path = app.activeDocument.path;
-  var saveFile = File(Path + "/" + Name + ".txt");
-
-  if (saveFile.exists)
-    saveFile.remove();
-
-  saveFile.encoding = "UTF8";
-  saveFile.open("e", "TEXT", "????");
-  saveFile.writeln(txt);
-  saveFile.close();
-}
 
 ////////////// FUNCTION FOR SCANNING ACTION SETS START **********
 
