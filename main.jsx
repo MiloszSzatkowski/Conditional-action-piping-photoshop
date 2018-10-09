@@ -15,6 +15,8 @@ var id = 0;
 
 var children_bounds;
 
+var HEIGHT_MODULE_TRESHOLD = 145;
+
 ////////////////////////////////// GLOABAL VARIABLES END ***********************
 
 // SCAN ALL AVAILABLE ACTIONS AND ADD THEM TO ARRAYS
@@ -23,7 +25,7 @@ populate();
 
 /////////////////////////////////// UI START ***********************
 
-var W = new Window('dialog {orientation: "row", alignChildren: ["fill","fill"], size: [1250,600]}', "Conditional action piping", undefined, {
+var W = new Window('dialog {orientation: "row", alignChildren: ["fill","fill"], size: [1200,600]}', "Conditional action piping", undefined, {
   closeButton: true
 }, {resizeable: true});
 
@@ -41,37 +43,90 @@ var container = High_group.add ('panel {orientation: "column", alignChildren: ["
 
 // intro container - width management
 container.add('statictext', undefined,
-' -------------------------------------------------------- Modules-------------------------------------------------------- --------------------------------------------------------', {
+' Modules   -----------------------------------------------------------------------------------------------------------------------------------------------------------------------', {
   readonly: false
 }, {justify: "center"});
 
 // container.add('edittext', undefined, '');
 
+var Scroll_group = W.add('panel {orientation: "column", alignChildren: ["fill","fill"]}', undefined, '')
+
+Scroll_group.maximumSize.width = 60;
+
+var top_button =  Scroll_group.add('button', undefined, '↑↑');
+var scroll_up =   Scroll_group.add('button', undefined, '↑');
+var scroll_down = Scroll_group.add('button', undefined, '↓');
+var down_button = Scroll_group.add('button', undefined, '↓↓');
+
+var GLOBAL_gap = 10;
+var GLOBAL_FIRST_STATIC_TEXT_HEIGHT = 14;
+var scrolling_treshold = HEIGHT_MODULE_TRESHOLD + GLOBAL_gap + GLOBAL_FIRST_STATIC_TEXT_HEIGHT;
+
+top_button.onClick = function() {
+  updateUILayout(container);
+}
+
+scroll_up.onClick = function() {
+  try {
+    // alert( container.children[1].bounds.y )
+    if ( (parseFloat(container.children[0].location.y) < 10) ) {
+      for (var i = 0; i < container.children.length; i++) {
+        container.children[i].location.y = container.children[i].location.y + scrolling_treshold;
+      }
+      if ((parseFloat(container.children[0].location.y) > GLOBAL_FIRST_STATIC_TEXT_HEIGHT)) {
+        updateUILayout(container);
+      }
+    } else {
+      updateUILayout(container);
+    }
+  } catch (e) {}
+}
+
+scroll_down.onClick = function() {
+  try {
+    if ( ! (parseFloat(container.children[container.children.length-1].location.y) < (HEIGHT_MODULE_TRESHOLD + GLOBAL_gap))) {
+      for (var i = 0; i < container.children.length; i++) {
+        container.children[i].location.y = container.children[i].location.y - scrolling_treshold;
+      }
+    }
+  } catch (e) {}
+}
+
+down_button.onClick = function () {
+  updateUILayout(container);
+  refresh_view();
+}
+
 var Controls = W.add('panel {orientation: "column", alignChildren: ["fill","top"]}', undefined, '');
 
 var desc_add_sub = Controls.add('statictext', undefined, 'Controls:')
 
-var scroll_up = Controls.add('button', undefined, 'Scroll up');
-var scroll_down = Controls.add('button', undefined, 'Scroll down');
-
 hr(Controls);
 
-var Control_Add_group = Controls.add('group {orientation:"row", alignChildren: ["fill","fill"]}', undefined, '');
+var Control_Add_group = Controls.add('group {orientation:"column", alignChildren: ["fill","fill"]}', undefined, '');
 var add_Action_Button = Control_Add_group.add('button', undefined, 'Add action module');
 var add_Opening_Button = Control_Add_group.add('button', undefined, 'Add opening module');
 var add_Saving_Button = Control_Add_group.add('button', undefined, 'Add saving module');
 
-var Control_sub_group = Controls.add('group {orientation:"row", alignChildren: ["fill","fill"]}', undefined, '');
+hr(Controls);
+
+var Control_sub_group = Controls.add('group {orientation:"column", alignChildren: ["fill","fill"]}', undefined, '');
 var subButton = Control_sub_group.add('button', undefined, 'Remove selected module');
 var subButton_all = Control_sub_group.add('button', undefined, 'Remove all modules');
 
 hr(Controls);
 
-var refresh_button = Controls.add('button', undefined, 'Refresh');
+// var refresh_button = Controls.add('button', undefined, 'Refresh');
 
 var execute_Pipe_button = Controls.add ('button', undefined, 'Execute');
 execute_Pipe_button.onClick = function () {
   UNPACK ();
+}
+
+var close_window = Controls.add('button', undefined, 'Dismiss')
+
+close_window.onClick = function () {
+  W.close();
 }
 
 ////////////// UI FUNCTIONS: ************************************************************ START
@@ -107,9 +162,13 @@ function refresh_view() {
   if (true) {
     // move to location of added module - workaround at this moment only
     if (container.children.length > 4) {
+      // alert(container.children[1].location.y + ' ' + container.children[2].location.y  )
+      // alert(container.children[0].size.height)
+      var size_of_first_element_statix_text = container.children[0].size.height;
+      var gap = 10;
       for (var i = 0; i < container.children.length; i++) {
-        var t_sum = reCount_children_height(-19);
-        container.children[i].location.y = container.children[i].location.y - t_sum;
+        var t_sum = ((HEIGHT_MODULE_TRESHOLD + gap) * (container.children.length - 3)) + size_of_first_element_statix_text;
+        container.children[i].location.y = container.children[i].location.y - t_sum + HEIGHT_MODULE_TRESHOLD;
       }
     }
   }
@@ -141,27 +200,11 @@ function delete_selected_modules() {
   updateUILayout(container);
 }
 
-var scrolling_treshold = 40;
 
-scroll_up.onClick = function() {
-  try {
-    for (var i = 0; i < container.children.length; i++) {
-      container.children[i].location.y = container.children[i].location.y + scrolling_treshold;
-    }
-  } catch (e) {}
-}
 
-scroll_down.onClick = function() {
-  try {
-    for (var i = 0; i < container.children.length; i++) {
-      container.children[i].location.y = container.children[i].location.y - scrolling_treshold;
-    }
-  } catch (e) {}
-}
-
-refresh_button.onClick = function() {
-  updateUILayout(container);
-}
+// refresh_button.onClick = function() {
+//   updateUILayout(container);
+// }
 
 ////////////// UI MISC FUNCTIONS ***********-------------------------
 
@@ -467,6 +510,8 @@ function Module(TYPE) {
 
 
   }
+
+  this.reference.minimumSize.height = HEIGHT_MODULE_TRESHOLD;
 
 }
 
