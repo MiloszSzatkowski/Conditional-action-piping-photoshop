@@ -261,49 +261,98 @@ function container_selection() {
 
 //////////////// UI FUNCTIONS: ************************************************************ END
 
+////////////// SAVE MODULES
+
 hr(Controls);
 
-var Save_Current_Modules_butt = Controls.add('button', undefined, 'Save current set of modules');
-Save_Current_Modules_butt.onClick = function () {       saveModule(false);  }
+var FILE = new File((new File($.fileName)).parent + "/" + "Pipes.xml");
 
-var Overwrite_Current_Modules_butt = Controls.add('button', undefined, 'Overwrite current set of modules');
-Overwrite_Current_Modules_butt.onClick = function () {  saveModule(true);   }
+var Save_Current_Modules_butt = Controls.add('button', undefined, 'Save selected set of modules');
+Save_Current_Modules_butt.onClick = function () {       saveModule(false, false);  }
 
+var Overwrite_Current_Modules_butt = Controls.add('button', undefined, 'Overwrite selected set of modules');
+Overwrite_Current_Modules_butt.onClick = function () {  saveModule(true, false);   }
 
+var Load_Selected_Modules_butt = Controls.add('button', undefined, 'Load selected set of modules');
 var Delete_Current_Modules_butt = Controls.add('button', undefined, 'Delete selected set of modules');
+Delete_Current_Modules_butt.onClick = function () {  saveModule(true, true);   }
 
 var Desc_saved_sets_of_modules = Controls.add('statictext', undefined, 'List of saved sets of modules:');
 var Saved_sets_of_modules      = Controls.add('dropdownlist', undefined, []);
 
-var FILE = new File((new File($.fileName)).parent + "/" + "Pipes.xml");
+update_Dropdownlist_of_sets();
 
-function saveTxt(txt , overwrite) {
+function update_Dropdownlist_of_sets() {
+  try {
+    var xml_sets_names_for_dropdown = read_modules_from_file();
+    for (var i = 0; i < xml_sets_names_for_dropdown.length; i++) {
+      Saved_sets_of_modules.add ('item', xml_sets_names_for_dropdown[i])
+    }
+    Saved_sets_of_modules.selection = 0;
+  } catch (e) {
+  }
+}
+
+function saveTxt(txt , NAME_OF_A_SET, overwrite, deletion) {
   FILE.encoding = "UTF8";
 
   FILE.open('r');
   var XML_FILE = new XML( FILE.read() );
   FILE.close();
+  var xml_sets_names = read_modules_from_file();
 
-  // alert( XML_FILE.SETS.elements().namespaceDeclarations()   );
-  // [0].NAME)
+  if (overwrite && !deletion) {
+    for (var i = 0; i < xml_sets_names.length; i++) {
+      if (xml_sets_names[i] == NAME_OF_A_SET) {
+        // XML_FILE.SETS.elements()[i].removeNamespace();
 
-  var array_of_xml_sets = XML_FILE.xmlElements;
+        delete  XML_FILE.SETS.elements()[i];
+        XML_FILE.elements()[0].appendChild( new XML(  txt ) );
 
-  alert(array_of_xml_sets)
+        FILE.open("w");
+        FILE.writeln('');
+        FILE.close();
 
-  var xml_sets_names = [];
-  for (var ll = 0; ll < array_of_xml_sets.length; ll++) {
-    xml_sets_names.push( array_of_xml_sets[ll].NAME );
+        FILE.open("e", "TEXT");
+        FILE.writeln(XML_FILE);
+        FILE.close();
+
+        alert('Set overwritten.')
+      }
+    }
+  } else if (deletion) {
+    for (var i = 0; i < xml_sets_names.length; i++) {
+      if (xml_sets_names[i] == NAME_OF_A_SET) {
+        // XML_FILE.SETS.elements()[i].removeNamespace();
+
+        delete  XML_FILE.SETS.elements()[i];
+
+        // XML_FILE = XML_FILE.toString().split('\n\n')[0];
+
+        // alert(XML_FILE)
+
+        FILE.open("w");
+        FILE.writeln('');
+        FILE.close();
+
+        FILE.open("e", "TEXT");
+        FILE.writeln(XML_FILE);
+        FILE.close();
+
+        alert('Set deleted.')
+      }
+    }
+  } else {
+
+    FILE.open("w");
+    FILE.writeln('');
+    FILE.close();
+
+    FILE.open("e", "TEXT");
+    XML_FILE.elements()[0].appendChild( new XML(  txt ) );
+    FILE.writeln(XML_FILE);
+    FILE.close();
   }
-
-  alert(xml_sets_names)
-
-  // FILE.open("e", "TEXT");
-  // // alert(XML_FILE)
-  // XML_FILE.elements()[0].appendChild( new XML(  txt ) );
-  // FILE.write('');
-  // FILE.writeln(XML_FILE.toXMLString());
-  // FILE.close();
 
 }
 
@@ -313,11 +362,25 @@ function saveTxt(txt , overwrite) {
 //   </PIPES>
 // </DOCUMENT>
 
-function read_modules() {
-  FILE.open('r');
-  var xml = new XML( FILE.read() );
-  FILE.close();
-  return xml;
+function read_modules_from_file() {
+  FILE.encoding = "UTF8";
+
+    FILE.open('r');
+    var XML_FILE = new XML( FILE.read() );
+    FILE.close();
+    xml_sets_names = [];
+
+    var ll = 0;
+      while (true) {
+        try {
+          xml_sets_names.push( XML_FILE.SETS.elements()[ll].NAME );
+          ll++;
+        } catch (e) {
+          break;
+        }
+      }
+
+    return xml_sets_names;
 }
 
 function deSerialize (csv_file) {
@@ -330,7 +393,7 @@ function deSerialize (csv_file) {
 // var PIPE_SEPERATOR = 'SET_start\n';
 // var NAME_OF_SET_IDENTIFIER = 'NAME_OF_SET:\n';
 
-function saveModule(overwrite) {
+function saveModule(overwrite, deletion) {
     if        (!overwrite) {
       var NAME_OF_A_SET = prompt('Provide a custom name for a new set of modules:', 'Name of a set.');
       if (Saved_sets_of_modules.items.length > 0) {
@@ -343,7 +406,7 @@ function saveModule(overwrite) {
       }
     } else if ( overwrite){
       if (Saved_sets_of_modules.items.length === 0) {
-        alert ('There are no modules to overwrite.');
+        alert ('There are no modules to overwrite nor delete.');
         return;
       } else {
         var NAME_OF_A_SET = Saved_sets_of_modules.selection.text;
@@ -353,7 +416,7 @@ function saveModule(overwrite) {
     }
 
     if ( (NAME_OF_A_SET != null) && (NAME_OF_A_SET != 'Name of a set.')) {
-      if (container.children.length > 1) {
+      if (container.children.length > 1 || deletion) {
         var string_to_save = '';
 
           // save modules to stringified array
@@ -371,11 +434,19 @@ function saveModule(overwrite) {
 
           string_to_save = '\r' + "<SET>" + '\r' + "<NAME>" + NAME_OF_A_SET + "</NAME>" + '\r' +"<MODULES>" + string_to_save + "</MODULES>" + '\r' + "</SET>";
 
-          try {  saveTxt( string_to_save , overwrite );
-                 Saved_sets_of_modules.add('item', NAME_OF_A_SET);
-                 try {   Saved_sets_of_modules.selection = 0;   } catch (e) {       }
-                 alert ('Set "' + NAME_OF_A_SET + '" saved');
-               } catch (e) {    alert  (e);   }
+          try {  saveTxt( string_to_save , NAME_OF_A_SET , overwrite , deletion);
+              if (!deletion) {
+                if (!overwrite) {
+                  Saved_sets_of_modules.add('item', NAME_OF_A_SET);
+                  alert ('Set "' + NAME_OF_A_SET + '" saved');
+                }
+                try {   Saved_sets_of_modules.selection = Saved_sets_of_modules.items.length -1 ;   } catch (e) {       }
+              } else {
+                Saved_sets_of_modules.remove(Saved_sets_of_modules.items[Saved_sets_of_modules.selection.index]);
+                try {   Saved_sets_of_modules.selection = 0 ;   } catch (e) {       }
+                alert ('Set "' + NAME_OF_A_SET + '" removed');
+              }
+          } catch (e) {    alert  (e);   }
 
       } else {
         alert ('No modules to save.');
