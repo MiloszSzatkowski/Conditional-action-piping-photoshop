@@ -17,6 +17,11 @@ var children_bounds;
 
 var HEIGHT_MODULE_TRESHOLD = 145;
 
+//GLOBAL VALUE FOR SERIALIZATION
+var DELIMITER = ';';
+var PIPE_SEPERATOR = 'SET_start\n';
+var NAME_OF_SET_IDENTIFIER = 'NAME_OF_SET:\n';
+
 ////////////////////////////////// GLOABAL VARIABLES END ***********************
 
 // SCAN ALL AVAILABLE ACTIONS AND ADD THEM TO ARRAYS
@@ -256,62 +261,80 @@ function container_selection() {
 
 //////////////// UI FUNCTIONS: ************************************************************ END
 
-function saveTxt(txt) {
-  var FILE = new File((new File($.fileName)).parent + "/" + "Pipes.csv");
+hr(Controls);
 
+var Save_Current_Modules_butt = Controls.add('button', undefined, 'Save current set of modules');
+var Delete_Current_Modules_butt = Controls.add('button', undefined, 'Delete current set of modules');
+var Saved_sets_of_modules = Controls.add('dropdownlist', undefined, []);
+
+var FILE = new File((new File($.fileName)).parent + "/" + "Pipes.xml");
+
+function saveTxt(txt) {
   FILE.encoding = "UTF8";
 
   FILE.open('r');
-  var current_content = "";
-  while(!FILE.eof)
-  current_content += FILE.read(); //not readln - important
+  var XML_FILE = new XML( FILE.read() );
   FILE.close();
 
   FILE.open("e", "TEXT");
-  var content_to_save = current_content + txt;
-  FILE.writeln(content_to_save);
-  FILE.close();
+  alert(XML_FILE)
+  var document_ = XML_FILE.elements();
+  document_[0].appendChild( txt );
+  alert(document_[0]);
+  // FILE.writeln(content_to_save);
+  // FILE.close();
+
 }
 
-hr(Controls);
+function read_modules() {
+  FILE.open('r');
+  var xml = new XML( FILE.read() );
+  FILE.close();
+  return xml;
+}
 
-var Save_Current_Modules_butt = Controls.add('button', undefined, 'Save current modules');
+function deSerialize (csv_file) {
+
+}
 
 ///////////////////////// SAVE AND LOAD MODULES FROM FILE
 
 Save_Current_Modules_butt.onClick = function () {  saveModule();  }
 
-function saveModule() {
+// cheatsheet
+// var PIPE_SEPERATOR = 'SET_start\n';
+// var NAME_OF_SET_IDENTIFIER = 'NAME_OF_SET:\n';
+
+function saveModule(overwrite) {
 
   if (container.children.length > 1) {
 
-    if () {
+    var string_to_save = '';
 
-    }
-    // save modules to stringified array
+      // save modules to stringified array
+      for (var i = 1; i < container.children.length; i++) {
 
-    for (var i = 1; i < container.children.length; i++) {
+        var TYPE = container.children[i].children[0].children[2].text;
+        var MODULE = container.children[i];
 
-      var TYPE = container.children[i].children[0].children[2].text;
-      var MODULE = container.children[i];
-      var string_to_save = SERIALIZE_current_module(MODULE , TYPE, true);
+        if (i === 1) {
+          string_to_save = SERIALIZE_current_module(MODULE , TYPE);
+        } else if (i > 1) {
+          string_to_save = string_to_save + SERIALIZE_current_module(MODULE , TYPE);
+        }
 
-      try {
-        saveTxt( string_to_save );
-      } catch (e) {
-        alert  (e)
       }
 
-    }
+      try {  saveTxt( string_to_save );  } catch (e) {    alert  (e)   }
+      alert ('Set saved');
+
   } else {
     alert ('No modules to save.');
     return;
   }
-
 }
 
-function SERIALIZE_current_module(MODULE, TYPE, ALL) {
-  var CONCAT = '';
+function SERIALIZE_current_module(MODULE, TYPE) {
 
   if        (TYPE == 'Play action') {
 
@@ -319,23 +342,121 @@ function SERIALIZE_current_module(MODULE, TYPE, ALL) {
     var ACTION_NAME =  MODULE.children[0].children[4].selection.text;
     var COND_BOOL =    MODULE.children[1].children[0].value;
     var CONTENT_BOOL = MODULE.children[1].children[1].text;
-    CONCAT = '*start*' + '\n' + TYPE + '\n' + SET_NAME + '\n' + ACTION_NAME + '\n' + COND_BOOL + '\n' + CONTENT_BOOL + '\n' + '*end*';
 
-    //wrap in inside
-    if (ALL) {
+    var xmlFIle =       '\r' + indent (1) + "<MODULE>";
+    xmlFIle = xmlFIle + '\r' + indent (2) + "<TYPE>"                 + TYPE +         "</TYPE>";
+    xmlFIle = xmlFIle + '\r' + indent (2) + "<SET_NAME>"             + SET_NAME +     "</SET_NAME>";
+    xmlFIle = xmlFIle + '\r' + indent (2) + "<ACTION_NAME>"          + ACTION_NAME +  "</ACTION_NAME>";
+    xmlFIle = xmlFIle + '\r' + indent (2) + "<CONDITION_BOOL>"       + COND_BOOL +    "</CONDITION_BOOL>";
+    xmlFIle = xmlFIle + '\r' + indent (2) + "<CONTENT_OF_CONDITION>" + CONTENT_BOOL + "</CONTENT_OF_CONDITION>";
+    xmlFIle = xmlFIle + '\r' + indent (1) + "</MODULE>" ;
 
-      // CONCAT = 
-
-    }
-
-    return CONCAT;
+    return xmlFIle;
 
   } else if (TYPE == 'Open files') {
 
+    var OPEN_BUTTON = MODULE.children[0].children[3];
+    var inputFolder = MODULE.children[2].children[0].children[1].text;
+
+    var cond_bool = MODULE.children[1].children[5].value;
+    var cond_text = MODULE.children[1].children[6].text;
+
+    var _format_shortcut = OPEN_BUTTON.parent.parent.children[1];
+    var _jpg = _format_shortcut.children[1].value;      var _tif = _format_shortcut.children[2].value;
+    var _psd = _format_shortcut.children[3].value;      var _png = _format_shortcut.children[4].value;
+
+    var xmlFIle =       '\r' + indent (1) + "<MODULE>";
+    xmlFIle = xmlFIle + '\r' + indent (2) + "<TYPE>"                 + TYPE +         "</TYPE>";
+    xmlFIle = xmlFIle + '\r' + indent (2) + "<INPUT_FOLDER>"         + inputFolder +  "</INPUT_FOLDER>";
+    xmlFIle = xmlFIle + '\r' + indent (2) + "<CONDITION_BOOL>"       + cond_bool +    "</CONDITION_BOOL>";
+    xmlFIle = xmlFIle + '\r' + indent (2) + "<CONTENT_OF_CONDITION>" + cond_text +    "</CONTENT_OF_CONDITION>";
+    xmlFIle = xmlFIle + '\r' + indent (2) + "<JPG>"                  + _jpg +         "</JPG>";
+    xmlFIle = xmlFIle + '\r' + indent (2) + "<TIF>"                  + _tif +         "</TIF>";
+    xmlFIle = xmlFIle + '\r' + indent (2) + "<PSD>"                  + _psd +         "</PSD>";
+    xmlFIle = xmlFIle + '\r' + indent (2) + "<PNG>"                  + _png +         "</PNG>";
+    xmlFIle = xmlFIle + '\r' + indent (1) + "</MODULE>" ;
+
+    return xmlFIle;
+
   } else if (TYPE == 'Save files') {
+
+    var flatten_bool = MODULE.children[0].children[4].value;
+
+    var extension =    MODULE.children[0].children[6].selection.text;
+    var outputFolder = MODULE.children[1].children[0].children[1].text;
+
+    var rename_bool =  MODULE.children[2].children[0].value;
+
+    var prefix =       MODULE.children[2].children[2].text;
+    var replace_text = MODULE.children[2].children[4].text;
+    var replace_with = MODULE.children[2].children[6].text;
+    var sufix =        MODULE.children[2].children[8].text;
+
+    var xmlFIle =       '\r' + indent (1) + "<MODULE>";
+    xmlFIle = xmlFIle + '\r' + indent (2) + "<TYPE>"          + TYPE +         "</TYPE>";
+    xmlFIle = xmlFIle + '\r' + indent (2) + "<FLATTEN_BOOL>"  + flatten_bool + "</FLATTEN_BOOL>";
+    xmlFIle = xmlFIle + '\r' + indent (2) + "<OUTPUT_FOLDER>" + outputFolder + "</OUTPUT_FOLDER>";
+    xmlFIle = xmlFIle + '\r' + indent (2) + "<EXTENSION>"     + extension +    "</EXTENSION>";
+    xmlFIle = xmlFIle + '\r' + indent (2) + "<RENAME_BOOL>"   + rename_bool +  "</RENAME_BOOL>";
+    xmlFIle = xmlFIle + '\r' + indent (2) + "<PREFIX>"        + prefix +       "</PREFIX>";
+    xmlFIle = xmlFIle + '\r' + indent (2) + "<REPLACE_TEXT>"  + replace_text + "</REPLACE_TEXT>";
+    xmlFIle = xmlFIle + '\r' + indent (2) + "<REPLACE_WITH>"  + replace_with + "</REPLACE_WITH>";
+    xmlFIle = xmlFIle + '\r' + indent (2) + "<SUFIX>"         + sufix +        "</SUFIX>";
+    xmlFIle = xmlFIle + '\r' + indent (1) + "</MODULE>" ;
+
+    return xmlFIle;
 
   }
 }
+
+function indent (n) {
+  var s = " "; for (var i = 0; i < n; i++) {s += "\t";}
+  return s;
+}
+
+// get name from between identifiers
+var getFromBetween = {
+    results:[],
+    string:"",
+    getFromBetween:function (sub1,sub2) {
+        if(this.string.indexOf(sub1) < 0 || this.string.indexOf(sub2) < 0) return false;
+        var SP = this.string.indexOf(sub1)+sub1.length;
+        var string1 = this.string.substr(0,SP);
+        var string2 = this.string.substr(SP);
+        var TP = string1.length + string2.indexOf(sub2);
+        return this.string.substring(SP,TP);
+    },
+    removeFromBetween:function (sub1,sub2) {
+        if(this.string.indexOf(sub1) < 0 || this.string.indexOf(sub2) < 0) return false;
+        var removal = sub1+this.getFromBetween(sub1,sub2)+sub2;
+        this.string = this.string.replace(removal,"");
+    },
+    getAllResults:function (sub1,sub2) {
+        // first check to see if we do have both substrings
+        if(this.string.indexOf(sub1) < 0 || this.string.indexOf(sub2) < 0) return;
+
+        // find one result
+        var result = this.getFromBetween(sub1,sub2);
+        // push it to the results array
+        this.results.push(result);
+        // remove the most recently found one from the string
+        this.removeFromBetween(sub1,sub2);
+
+        // if there's more substrings
+        if(this.string.indexOf(sub1) > -1 && this.string.indexOf(sub2) > -1) {
+            this.getAllResults(sub1,sub2);
+        }
+        else return;
+    },
+    get:function (string,sub1,sub2) {
+        this.results = [];
+        this.string = string;
+        this.getAllResults(sub1,sub2);
+        return this.results;
+    }
+};
+
+//usage: var result = getFromBetween.get(string,"first_delimiter","second_delimiter");
 
 ////////////// set initial index of dropdowns:
 

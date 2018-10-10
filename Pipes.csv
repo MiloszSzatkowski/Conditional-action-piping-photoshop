@@ -1,14 +1,30 @@
-*start*
-Play action
-własna nocny strik
-strik nocny z pathu
-false
 
-*end*
-*start*
-Play action
-własna nocny strik
-strik nocny z pathu
-false
+ 	<MODULE>
+ 		<TYPE>Open files</TYPE>
+ 		<INPUT_FOLDER>/e</INPUT_FOLDER>
+ 		<CONDITION_BOOL>true</CONDITION_BOOL>
+ 		<CONTENT_OF_CONDITION>CONDITIONTEXT</CONTENT_OF_CONDITION>
+ 		<JPG>true</JPG>
+ 		<TIF>true</TIF>
+ 		<PSD>true</PSD>
+ 		<PNG>true</PNG>
+ 	</MODULE>
 
-*end*
+ 	<MODULE>
+ 		<TYPE>Play action</TYPE>
+ 		<SET_NAME>CONCEPT ART Action by RedVokinputs</SET_NAME>
+ 		<ACTION_NAME>Step 1 - Paint Concept Zone</ACTION_NAME>
+ 		<CONDITION_BOOL>true</CONDITION_BOOL>
+ 		<CONTENT_OF_CONDITION>CONDITIONETEXT</CONTENT_OF_CONDITION>
+ 	</MODULE>
+0 	<MODULE>
+ 		<TYPE>Save files</TYPE>
+ 		<FLATTEN_BOOL>true</FLATTEN_BOOL>
+ 		<OUTPUT_FOLDER>~/Desktop</OUTPUT_FOLDER>
+ 		<EXTENSION>psd</EXTENSION>
+ 		<RENAME_BOOL>true</RENAME_BOOL>
+ 		<PREFIX>PREFIX</PREFIX>
+ 		<REPLACE_TEXT>REPLACE</REPLACE_TEXT>
+ 		<REPLACE_WITH>WITH</REPLACE_WITH>
+ 		<SUFIX>SUFIX</SUFIX>
+ 	</MODULE>
