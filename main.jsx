@@ -2,7 +2,7 @@
 
 #target photoshop
 
-////////////////////////////////// GLOABAL VARIABLES START ***********************
+////////////////////////////////// GLOBAL VARIABLES START ***********************
 
 var actions_set_array,
   aList;
@@ -273,18 +273,118 @@ Save_Current_Modules_butt.onClick = function () {       saveModule(false, false)
 var Overwrite_Current_Modules_butt = Controls.add('button', undefined, 'Overwrite selected set of modules');
 Overwrite_Current_Modules_butt.onClick = function () {  saveModule(true, false);   }
 
-var Load_Selected_Modules_butt = Controls.add('button', undefined, 'Load selected set of modules');
+// var Load_Selected_Modules_butt = Controls.add('button', undefined, 'Load selected set of modules');
+function Load_Selected_Modules () {
+    if (Saved_sets_of_modules.items.length > 0) {
+
+      //remove all visible modules
+      if (container.children.length > 1) {
+        for (var i = 1; i < container.children.length; i++) {
+          container.children[i].children[0].children[0].value = true;
+        }
+        delete_selected_modules();
+      }
+
+      var Name_of_a_set_ = Saved_sets_of_modules.selection.text;
+
+      FILE.encoding = "UTF8";
+
+      FILE.open('r');
+      var XML_FILE = new XML( FILE.read() );
+      FILE.close();
+
+      var xml_sets_names = read_modules_from_file();
+
+      var current_selection_index ;
+
+      for (var i = 0; i < xml_sets_names.length; i++) {
+        if (xml_sets_names[i] == Name_of_a_set_) {
+          current_selection_index = i;
+          break;
+        }
+      }
+
+      var PP = 0;
+      while (true) {
+        try {
+          XML_FILE.SETS.elements()[current_selection_index].MODULES.elements()[PP];
+          var THIS_TYPE = XML_FILE.SETS.elements()[current_selection_index].MODULES.elements()[PP].TYPE;
+            if        (THIS_TYPE == 'Play action') {
+              var this_module = new Module('Action');
+              var this_module = this_module.reference;
+              var SET_NAME    =  this_module.children[0].children[3].selection.text = XML_FILE.SETS.elements()[current_selection_index].MODULES.elements()[PP].SET_NAME;
+              var ACTION_NAME =  this_module.children[0].children[4].selection.text = XML_FILE.SETS.elements()[current_selection_index].MODULES.elements()[PP].ACTION_NAME;
+              var COND_BOOL =    this_module.children[1].children[0].value = (XML_FILE.SETS.elements()[current_selection_index].MODULES.elements()[PP].CONDITION_BOOL == true);
+              if (XML_FILE.SETS.elements()[current_selection_index].MODULES.elements()[PP].CONDITION_BOOL == true) {
+                var CONTENT_BOOL = this_module.children[1].children[1].text  = XML_FILE.SETS.elements()[current_selection_index].MODULES.elements()[PP].CONTENT_OF_CONDITION;
+              }
+            } else if (THIS_TYPE == 'Open files') {
+              var this_module = new Module('Opening');
+              var this_module = this_module.reference;
+              var OPEN_BUTTON = this_module.children[0].children[3];
+              var inputFolder = this_module.children[2].children[0].children[1].text = XML_FILE.SETS.elements()[current_selection_index].MODULES.elements()[PP].INPUT_FOLDER;
+              this_module.children[2].children[0].children[1].minimumSize.width = 500;
+              var cond_bool = this_module.children[1].children[5].value = (XML_FILE.SETS.elements()[current_selection_index].MODULES.elements()[PP].CONDITION_BOOL == true);
+              if (XML_FILE.SETS.elements()[current_selection_index].MODULES.elements()[PP].CONDITION_BOOL == true) {
+                var cond_text = this_module.children[1].children[6].text  = XML_FILE.SETS.elements()[current_selection_index].MODULES.elements()[PP].CONTENT_OF_CONDITION;
+              }
+              var _format_shortcut = OPEN_BUTTON.parent.parent.children[1];
+              var _jpg = _format_shortcut.children[1].value = XML_FILE.SETS.elements()[current_selection_index].MODULES.elements()[PP].JPG;
+              var _tif = _format_shortcut.children[2].value = XML_FILE.SETS.elements()[current_selection_index].MODULES.elements()[PP].TIF;
+              var _psd = _format_shortcut.children[3].value = XML_FILE.SETS.elements()[current_selection_index].MODULES.elements()[PP].PSD;
+              var _png = _format_shortcut.children[4].value = XML_FILE.SETS.elements()[current_selection_index].MODULES.elements()[PP].PNG;
+            } else if (THIS_TYPE == 'Save files') {
+              var this_module = new Module('Saving');
+              var this_module = this_module.reference;
+              var flatten_bool = this_module.children[0].children[4].value =            (XML_FILE.SETS.elements()[current_selection_index].MODULES.elements()[PP].FLATTEN_BOOL == true);
+              var outputFolder = this_module.children[1].children[0].children[1].text = XML_FILE.SETS.elements()[current_selection_index].MODULES.elements()[PP].OUTPUT_FOLDER;
+              this_module.children[1].children[0].children[1].minimumSize.width = 500;
+              var extension =    this_module.children[0].children[6].selection.text   = XML_FILE.SETS.elements()[current_selection_index].MODULES.elements()[PP].EXTENSION;
+              var rename_bool =  this_module.children[2].children[0].value = (XML_FILE.SETS.elements()[current_selection_index].MODULES.elements()[PP].RENAME_BOOL == true);
+              if (XML_FILE.SETS.elements()[current_selection_index].MODULES.elements()[PP].RENAME_BOOL == true) {
+                var prefix =       this_module.children[2].children[2].text = XML_FILE.SETS.elements()[current_selection_index].MODULES.elements()[PP].PREFIX;
+                var replace_text = this_module.children[2].children[4].text = XML_FILE.SETS.elements()[current_selection_index].MODULES.elements()[PP].REPLACE_TEXT;
+                var replace_with = this_module.children[2].children[6].text = XML_FILE.SETS.elements()[current_selection_index].MODULES.elements()[PP].REPLACE_WITH;
+                var sufix =        this_module.children[2].children[8].text = XML_FILE.SETS.elements()[current_selection_index].MODULES.elements()[PP].SUFIX;
+              }
+            }
+          PP++;
+        } catch (e) {
+          break;
+        }
+      }
+      updateUILayout(container);
+    } else {
+      alert("There are no sets to load.")
+    }
+  }
+
 var Delete_Current_Modules_butt = Controls.add('button', undefined, 'Delete selected set of modules');
-Delete_Current_Modules_butt.onClick = function () {  saveModule(true, true);   }
+Delete_Current_Modules_butt.onClick = function () {  saveModule(true, true);
+    //remove all visible modules
+    // if (container.children.length > 1) {
+    //   for (var i = 1; i < container.children.length; i++) {
+    //     container.children[i].children[0].children[0].value = true;
+    //   }
+    //   delete_selected_modules();
+    // }
+  }
 
 var Desc_saved_sets_of_modules = Controls.add('statictext', undefined, 'List of saved sets of modules:');
 var Saved_sets_of_modules      = Controls.add('dropdownlist', undefined, []);
 
 update_Dropdownlist_of_sets();
 
+Saved_sets_of_modules.onChange = function () {
+  Load_Selected_Modules();
+}
+
 function update_Dropdownlist_of_sets() {
   try {
     var xml_sets_names_for_dropdown = read_modules_from_file();
+      try {
+        Saved_sets_of_modules.removeAll();
+      } catch (e) {   }
     for (var i = 0; i < xml_sets_names_for_dropdown.length; i++) {
       Saved_sets_of_modules.add ('item', xml_sets_names_for_dropdown[i])
     }
@@ -323,11 +423,7 @@ function saveTxt(txt , NAME_OF_A_SET, overwrite, deletion) {
   } else if (deletion) {
     for (var i = 0; i < xml_sets_names.length; i++) {
       if (xml_sets_names[i] == NAME_OF_A_SET) {
-        // XML_FILE.SETS.elements()[i].removeNamespace();
-
         delete  XML_FILE.SETS.elements()[i];
-
-        // XML_FILE = XML_FILE.toString().split('\n\n')[0];
 
         // alert(XML_FILE)
 
@@ -339,7 +435,7 @@ function saveTxt(txt , NAME_OF_A_SET, overwrite, deletion) {
         FILE.writeln(XML_FILE);
         FILE.close();
 
-        alert('Set deleted.')
+        // alert('Set deleted.')
       }
     }
   } else {
@@ -383,15 +479,7 @@ function read_modules_from_file() {
     return xml_sets_names;
 }
 
-function deSerialize (csv_file) {
-
-}
-
 ///////////////////////// SAVE AND LOAD MODULES FROM FILE
-
-// cheatsheet
-// var PIPE_SEPERATOR = 'SET_start\n';
-// var NAME_OF_SET_IDENTIFIER = 'NAME_OF_SET:\n';
 
 function saveModule(overwrite, deletion) {
     if        (!overwrite) {
@@ -439,8 +527,8 @@ function saveModule(overwrite, deletion) {
                 if (!overwrite) {
                   Saved_sets_of_modules.add('item', NAME_OF_A_SET);
                   alert ('Set "' + NAME_OF_A_SET + '" saved');
+                  try {   Saved_sets_of_modules.selection = Saved_sets_of_modules.items.length -1 ;   } catch (e) {       }
                 }
-                try {   Saved_sets_of_modules.selection = Saved_sets_of_modules.items.length -1 ;   } catch (e) {       }
               } else {
                 Saved_sets_of_modules.remove(Saved_sets_of_modules.items[Saved_sets_of_modules.selection.index]);
                 try {   Saved_sets_of_modules.selection = 0 ;   } catch (e) {       }
@@ -1378,8 +1466,12 @@ function actionExists( setName , actionName){
    return res;
 }
 
-
 /////////////////////////////////// *** Process Folder
+
+// load first AVAILABLE settings
+try {
+  Load_Selected_Modules();
+} catch (e) {   }
 
 // SHOW THE WINDOW
 W.show();
