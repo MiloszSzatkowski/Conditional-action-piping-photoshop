@@ -1,5 +1,134 @@
-<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <DOCUMENT>
-  <PIPES>
-  </PIPES>
+  <SETS>
+    <SET>
+      <NAME>Set 01</NAME>
+      <MODULES>
+        <MODULE>
+          <TYPE>Play action</TYPE>
+          <SET_NAME>Default Actions</SET_NAME>
+          <ACTION_NAME>Vignette (selection)</ACTION_NAME>
+          <CONDITION_BOOL>false</CONDITION_BOOL>
+          <CONTENT_OF_CONDITION/>
+        </MODULE>
+        <MODULE>
+          <TYPE>Play action</TYPE>
+          <SET_NAME>Default Actions</SET_NAME>
+          <ACTION_NAME>Vignette (selection)</ACTION_NAME>
+          <CONDITION_BOOL>false</CONDITION_BOOL>
+          <CONTENT_OF_CONDITION/>
+        </MODULE>
+        <MODULE>
+          <TYPE>Open files</TYPE>
+          <INPUT_FOLDER>_______________________________________________________________</INPUT_FOLDER>
+          <CONDITION_BOOL>false</CONDITION_BOOL>
+          <CONTENT_OF_CONDITION/>
+          <JPG>true</JPG>
+          <TIF>true</TIF>
+          <PSD>true</PSD>
+          <PNG>true</PNG>
+        </MODULE>
+      </MODULES>
+    </SET>
+    <SET>
+      <NAME>asd</NAME>
+      <MODULES>
+        <MODULE>
+          <TYPE>Play action</TYPE>
+          <SET_NAME>Default Actions</SET_NAME>
+          <ACTION_NAME>Vignette (selection)</ACTION_NAME>
+          <CONDITION_BOOL>false</CONDITION_BOOL>
+          <CONTENT_OF_CONDITION/>
+        </MODULE>
+        <MODULE>
+          <TYPE>Play action</TYPE>
+          <SET_NAME>Default Actions</SET_NAME>
+          <ACTION_NAME>Vignette (selection)</ACTION_NAME>
+          <CONDITION_BOOL>false</CONDITION_BOOL>
+          <CONTENT_OF_CONDITION/>
+        </MODULE>
+        <MODULE>
+          <TYPE>Open files</TYPE>
+          <INPUT_FOLDER>_______________________________________________________________</INPUT_FOLDER>
+          <CONDITION_BOOL>false</CONDITION_BOOL>
+          <CONTENT_OF_CONDITION/>
+          <JPG>true</JPG>
+          <TIF>true</TIF>
+          <PSD>true</PSD>
+          <PNG>true</PNG>
+        </MODULE>
+      </MODULES>
+    </SET>
+    <SET>
+      <NAME>aassd</NAME>
+      <MODULES>
+        <MODULE>
+          <TYPE>Save files</TYPE>
+          <FLATTEN_BOOL>false</FLATTEN_BOOL>
+          <OUTPUT_FOLDER>_______________________________________________________________</OUTPUT_FOLDER>
+          <EXTENSION>psd</EXTENSION>
+          <RENAME_BOOL>false</RENAME_BOOL>
+          <PREFIX/>
+          <REPLACE_TEXT/>
+          <REPLACE_WITH/>
+          <SUFIX/>
+        </MODULE>
+        <MODULE>
+          <TYPE>Open files</TYPE>
+          <INPUT_FOLDER>_______________________________________________________________</INPUT_FOLDER>
+          <CONDITION_BOOL>false</CONDITION_BOOL>
+          <CONTENT_OF_CONDITION/>
+          <JPG>true</JPG>
+          <TIF>true</TIF>
+          <PSD>true</PSD>
+          <PNG>true</PNG>
+        </MODULE>
+        <MODULE>
+          <TYPE>Open files</TYPE>
+          <INPUT_FOLDER>_______________________________________________________________</INPUT_FOLDER>
+          <CONDITION_BOOL>false</CONDITION_BOOL>
+          <CONTENT_OF_CONDITION/>
+          <JPG>true</JPG>
+          <TIF>true</TIF>
+          <PSD>true</PSD>
+          <PNG>true</PNG>
+        </MODULE>
+      </MODULES>
+    </SET>
+    <SET>
+      <NAME>ddsdasd</NAME>
+      <MODULES>
+        <MODULE>
+          <TYPE>Open files</TYPE>
+          <INPUT_FOLDER>_______________________________________________________________</INPUT_FOLDER>
+          <CONDITION_BOOL>false</CONDITION_BOOL>
+          <CONTENT_OF_CONDITION/>
+          <JPG>true</JPG>
+          <TIF>true</TIF>
+          <PSD>true</PSD>
+          <PNG>true</PNG>
+        </MODULE>
+        <MODULE>
+          <TYPE>Open files</TYPE>
+          <INPUT_FOLDER>_______________________________________________________________</INPUT_FOLDER>
+          <CONDITION_BOOL>false</CONDITION_BOOL>
+          <CONTENT_OF_CONDITION/>
+          <JPG>true</JPG>
+          <TIF>true</TIF>
+          <PSD>true</PSD>
+          <PNG>true</PNG>
+        </MODULE>
+        <MODULE>
+          <TYPE>Save files</TYPE>
+          <FLATTEN_BOOL>false</FLATTEN_BOOL>
+          <OUTPUT_FOLDER>_______________________________________________________________</OUTPUT_FOLDER>
+          <EXTENSION>psd</EXTENSION>
+          <RENAME_BOOL>false</RENAME_BOOL>
+          <PREFIX/>
+          <REPLACE_TEXT/>
+          <REPLACE_WITH/>
+          <SUFIX/>
+        </MODULE>
+      </MODULES>
+    </SET>
+  </SETS>
 </DOCUMENT>

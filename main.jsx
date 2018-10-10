@@ -264,27 +264,54 @@ function container_selection() {
 hr(Controls);
 
 var Save_Current_Modules_butt = Controls.add('button', undefined, 'Save current set of modules');
-var Delete_Current_Modules_butt = Controls.add('button', undefined, 'Delete current set of modules');
-var Saved_sets_of_modules = Controls.add('dropdownlist', undefined, []);
+Save_Current_Modules_butt.onClick = function () {       saveModule(false);  }
+
+var Overwrite_Current_Modules_butt = Controls.add('button', undefined, 'Overwrite current set of modules');
+Overwrite_Current_Modules_butt.onClick = function () {  saveModule(true);   }
+
+
+var Delete_Current_Modules_butt = Controls.add('button', undefined, 'Delete selected set of modules');
+
+var Desc_saved_sets_of_modules = Controls.add('statictext', undefined, 'List of saved sets of modules:');
+var Saved_sets_of_modules      = Controls.add('dropdownlist', undefined, []);
 
 var FILE = new File((new File($.fileName)).parent + "/" + "Pipes.xml");
 
-function saveTxt(txt) {
+function saveTxt(txt , overwrite) {
   FILE.encoding = "UTF8";
 
   FILE.open('r');
   var XML_FILE = new XML( FILE.read() );
   FILE.close();
 
-  FILE.open("e", "TEXT");
-  alert(XML_FILE)
-  var document_ = XML_FILE.elements();
-  document_[0].appendChild( txt );
-  alert(document_[0]);
-  // FILE.writeln(content_to_save);
+  // alert( XML_FILE.SETS.elements().namespaceDeclarations()   );
+  // [0].NAME)
+
+  var array_of_xml_sets = XML_FILE.xmlElements;
+
+  alert(array_of_xml_sets)
+
+  var xml_sets_names = [];
+  for (var ll = 0; ll < array_of_xml_sets.length; ll++) {
+    xml_sets_names.push( array_of_xml_sets[ll].NAME );
+  }
+
+  alert(xml_sets_names)
+
+  // FILE.open("e", "TEXT");
+  // // alert(XML_FILE)
+  // XML_FILE.elements()[0].appendChild( new XML(  txt ) );
+  // FILE.write('');
+  // FILE.writeln(XML_FILE.toXMLString());
   // FILE.close();
 
 }
+
+// <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+// <DOCUMENT>
+//   <PIPES>
+//   </PIPES>
+// </DOCUMENT>
 
 function read_modules() {
   FILE.open('r');
@@ -299,39 +326,65 @@ function deSerialize (csv_file) {
 
 ///////////////////////// SAVE AND LOAD MODULES FROM FILE
 
-Save_Current_Modules_butt.onClick = function () {  saveModule();  }
-
 // cheatsheet
 // var PIPE_SEPERATOR = 'SET_start\n';
 // var NAME_OF_SET_IDENTIFIER = 'NAME_OF_SET:\n';
 
 function saveModule(overwrite) {
-
-  if (container.children.length > 1) {
-
-    var string_to_save = '';
-
-      // save modules to stringified array
-      for (var i = 1; i < container.children.length; i++) {
-
-        var TYPE = container.children[i].children[0].children[2].text;
-        var MODULE = container.children[i];
-
-        if (i === 1) {
-          string_to_save = SERIALIZE_current_module(MODULE , TYPE);
-        } else if (i > 1) {
-          string_to_save = string_to_save + SERIALIZE_current_module(MODULE , TYPE);
+    if        (!overwrite) {
+      var NAME_OF_A_SET = prompt('Provide a custom name for a new set of modules:', 'Name of a set.');
+      if (Saved_sets_of_modules.items.length > 0) {
+        for (var i = 0; i < Saved_sets_of_modules.items.length; i++) {
+          if (NAME_OF_A_SET == Saved_sets_of_modules.items[i].text){
+            NAME_OF_A_SET = '';
+            break;
+          }
         }
-
       }
+    } else if ( overwrite){
+      if (Saved_sets_of_modules.items.length === 0) {
+        alert ('There are no modules to overwrite.');
+        return;
+      } else {
+        var NAME_OF_A_SET = Saved_sets_of_modules.selection.text;
+      }
+    } else {
+      alert ('Argument in a function "saveModule" was not provided.');
+    }
 
-      try {  saveTxt( string_to_save );  } catch (e) {    alert  (e)   }
-      alert ('Set saved');
+    if ( (NAME_OF_A_SET != null) && (NAME_OF_A_SET != 'Name of a set.')) {
+      if (container.children.length > 1) {
+        var string_to_save = '';
 
-  } else {
-    alert ('No modules to save.');
-    return;
-  }
+          // save modules to stringified array
+          for (var i = 1; i < container.children.length; i++) {
+
+            var TYPE = container.children[i].children[0].children[2].text;
+            var MODULE = container.children[i];
+
+            if (i === 1) {
+              string_to_save = SERIALIZE_current_module(MODULE , TYPE);
+            } else if (i > 1) {
+              string_to_save = string_to_save + SERIALIZE_current_module(MODULE , TYPE);
+            }
+          }
+
+          string_to_save = '\r' + "<SET>" + '\r' + "<NAME>" + NAME_OF_A_SET + "</NAME>" + '\r' +"<MODULES>" + string_to_save + "</MODULES>" + '\r' + "</SET>";
+
+          try {  saveTxt( string_to_save , overwrite );
+                 Saved_sets_of_modules.add('item', NAME_OF_A_SET);
+                 try {   Saved_sets_of_modules.selection = 0;   } catch (e) {       }
+                 alert ('Set "' + NAME_OF_A_SET + '" saved');
+               } catch (e) {    alert  (e);   }
+
+      } else {
+        alert ('No modules to save.');
+        return;
+      }
+    } else {
+      alert ('Set was not saved.');
+      return;
+    }
 }
 
 function SERIALIZE_current_module(MODULE, TYPE) {
