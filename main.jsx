@@ -355,7 +355,7 @@ function Load_Selected_Modules () {
       }
       updateUILayout(container);
     } else {
-      alert("There are no sets to load.")
+      // alert("There are no sets to load.")
     }
   }
 
@@ -483,11 +483,13 @@ function read_modules_from_file() {
 
 function saveModule(overwrite, deletion) {
     if        (!overwrite) {
-      var NAME_OF_A_SET = prompt('Provide a custom name for a new set of modules:', 'Name of a set.');
+      var NAME_OF_A_SET = prompt('Provide a custom name for a new set of modules:', ' ');
       if (Saved_sets_of_modules.items.length > 0) {
         for (var i = 0; i < Saved_sets_of_modules.items.length; i++) {
           if (NAME_OF_A_SET == Saved_sets_of_modules.items[i].text){
             NAME_OF_A_SET = '';
+            alert("Name already taken.");
+            return;
             break;
           }
         }
@@ -503,7 +505,7 @@ function saveModule(overwrite, deletion) {
       alert ('Argument in a function "saveModule" was not provided.');
     }
 
-    if ( (NAME_OF_A_SET != null) && (NAME_OF_A_SET != 'Name of a set.')) {
+    if ( (NAME_OF_A_SET != null) && (NAME_OF_A_SET != ' ')) {
       if (container.children.length > 1 || deletion) {
         var string_to_save = '';
 
